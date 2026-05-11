@@ -3,12 +3,13 @@ const cors = require("cors");
 
 const helmet = require("helmet");
 const morgan = require("morgan");
-const globalErrorHandler = require('./middleware/errorMiddleware');
-
+const globalErrorHandler = require('./middlewares/errorMiddleware');
 
 
 
 const app = express();
+app.use(express.urlencoded({ extended: true }));
+app.use(express.json()) 
 
 
 app.use(express.json());
@@ -22,6 +23,8 @@ app.get("/test", (req, res) => {
   res.send("Auth Service Running");
 });
 // app.use('/api/v1/notification', )
+
+app.use('/api/v1/user', require('./routes/userRoute'));
 
 
 app.use(globalErrorHandler);

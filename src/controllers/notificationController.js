@@ -1,7 +1,7 @@
-const UserNotification = require("../model/userNotification");
-const asyncHandler = require("../util/asyncHandler");
-const AppError = require("../util/AppError");
-const { sendNotification } = require("../service/notificationService");
+const UserNotification = require("../models/userNotification");
+const asyncHandler = require("../utils/asyncHandler");
+const AppError = require("../utils/AppError");
+const { sendNotification } = require("../services/notificationService");
 
 const userController = {
   createNotification: asyncHandler(async (req, res) => {
