@@ -1,5 +1,6 @@
 const express = require("express");
 const cors = require("cors");
+const path = require("path");
 
 const helmet = require("helmet");
 const morgan = require("morgan");
@@ -10,6 +11,7 @@ const globalErrorHandler = require('./middlewares/errorMiddleware');
 const app = express();
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json()) 
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 
 app.use(express.json());

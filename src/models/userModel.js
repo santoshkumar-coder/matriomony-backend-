@@ -233,7 +233,7 @@ const userSchema = new mongoose.Schema(
 
 
 
-userSchema.index({ phone: 1 });
+
 userSchema.index({ religion: 1 });
 userSchema.index({ gender: 1 });
 userSchema.index({ motherTongue: 1 });
