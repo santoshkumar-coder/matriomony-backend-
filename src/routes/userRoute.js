@@ -32,6 +32,8 @@ router.post('/create', validate(createUserSchema), upload.array('images', 5), us
  *         description: Success
  */
 router.get('/get-all-users', userController.getAllUsers);
+router.get("/get-user/:id", userController.getUserById);
+router.put("/update-user/:id", upload.array('images', 5), userController.updateUser);
 
 
 module.exports = router;
