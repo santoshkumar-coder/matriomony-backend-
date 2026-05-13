@@ -29,7 +29,36 @@ const getAllUsersService = async () => {
     totalUsers: users.length,
   };
 };
+
+
+const getUserByIdService = async (id) => {
+  const user = await User.findById(id);
+
+  if (!user) {
+    throw new AppError("User not found with this ID", 404);
+  }
+
+  return user;
+}; 
+
+
+const updateUserService = async (id, updateData) => {
+
+  const updatedUser = await User.findByIdAndUpdate(id, updateData, {
+    new: true,
+    runValidators: true,
+  });
+
+  if (!updatedUser) {
+    throw new AppError("User not found to update", 404);
+  }
+
+  return updatedUser;
+};
+
 module.exports = {
   createUserService,
-  getAllUsersService
+  getAllUsersService,
+  getUserByIdService,
+  updateUserService 
 };
