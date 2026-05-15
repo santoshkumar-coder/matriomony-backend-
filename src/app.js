@@ -27,6 +27,7 @@ app.get("/test", (req, res) => {
 // app.use('/api/v1/notification', )
 
 app.use('/api/v1/user', require('./routes/userRoute'));
+app.use("/api/v1/success-stories", require("./routes/successStoryRoutes"));
 
 
 app.use(globalErrorHandler);
