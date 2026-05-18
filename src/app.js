@@ -10,7 +10,7 @@ const globalErrorHandler = require('./middlewares/errorMiddleware');
 
 const app = express();
 app.use(express.urlencoded({ extended: true }));
-app.use(express.json()) 
+app.use(express.json())
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 
@@ -27,6 +27,7 @@ app.get("/test", (req, res) => {
 // app.use('/api/v1/notification', )
 
 app.use('/api/v1/user', require('./routes/userRoute'));
+app.use('/api/v1/interests', require('./routes/sendInterestRoutes'));
 
 
 app.use(globalErrorHandler);
