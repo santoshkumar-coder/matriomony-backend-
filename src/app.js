@@ -10,7 +10,7 @@ const globalErrorHandler = require('./middlewares/errorMiddleware');
 
 const app = express();
 app.use(express.urlencoded({ extended: true }));
-app.use(express.json()) 
+app.use(express.json())
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 
