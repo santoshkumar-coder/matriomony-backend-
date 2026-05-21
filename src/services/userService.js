@@ -80,10 +80,40 @@ const getUserDashboardStatistics = async () => {
   };
 };
 
+
+const getAllUsersServiceForAdmin = async (page, limit) => {
+  const skip = (page - 1) * limit;
+
+  const [users, totalUsersCount] = await Promise.all([
+    User.find()
+      .sort({ createdAt: -1 }) 
+      .skip(skip)
+      .limit(limit)
+      .select("-password"), 
+    User.countDocuments(),
+  ]);
+
+  const totalPages = Math.ceil(totalUsersCount / limit);
+
+  return {
+    users,
+    pagination: {
+      totalUsersCount,
+      totalPages,
+      currentPage: page,
+      limit,
+      hasNextPage: page < totalPages,
+      hasPrevPage: page > 1,
+    },
+  };
+};
+
+
 module.exports = {
   createUserService,
   getAllUsersService,
   getUserByIdService,
   updateUserService ,
-  getUserDashboardStatistics
+  getUserDashboardStatistics,
+  getAllUsersServiceForAdmin
 };

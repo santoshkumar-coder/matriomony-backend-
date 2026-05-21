@@ -1,5 +1,5 @@
 const adminService = require("../services/adminService");
-const { getUserDashboardStatistics } = require("../services/userService");
+const { getUserDashboardStatistics , getAllUsersServiceForAdmin} = require("../services/userService");
 exports.register = async (req, res) => {
   try {
     const admin = await adminService.registerAdmin(req.body);
@@ -46,6 +46,30 @@ exports.getStats = async (req, res) => {
     return res.status(500).json({
       success: false,
       message: "Internal Server Error",
+      error: error.message,
+    });
+  }
+};
+
+exports.getAllUsersForAdmin = async (req, res) => {
+  try {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+
+    const result = await getAllUsersServiceForAdmin(page, limit);
+
+    return res.status(200).json({
+      success: true,
+      message: "Users fetched successfully",
+       totalUsers: result.totalUsersCount,
+     showingCount: result.users.length,
+      data: result.users,
+      pagination: result.pagination,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: "Error fetching users",
       error: error.message,
     });
   }
