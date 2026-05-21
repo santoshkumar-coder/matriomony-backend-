@@ -28,14 +28,14 @@ const userNotificationSchema = new mongoose.Schema({
     default: "default",
   },
 },
-{
-  timestamps: true, // replaces createdAt automatically
-});
+  {
+    timestamps: true, // replaces createdAt automatically
+  });
 
-userNotificationSchema.index({ 
-    userId: 1, 
-    createdAt: -1,
-     expireAfterSeconds: 60 * 60 * 24 * 30  
+userNotificationSchema.index({
+  userId: 1,
+  createdAt: -1,
+  expireAfterSeconds: 60 * 60 * 24 * 30
 });
 
 module.exports = mongoose.model("UserNotification", userNotificationSchema);
