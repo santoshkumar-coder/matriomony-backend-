@@ -3,25 +3,29 @@
 const express = require("express");
 const router = express.Router();
 
-const authMiddleware = require("../middlewares/authMiddleware");
+const {authMiddleware} = require("../middlewares/authMiddleware");
 
-const {
-    sendInterest,
-    // acceptInterest,
-    // rejectInterest,
-    // getReceivedInterests,
-    // getSentInterests,
-    // getMatches,
-} = require("../controllers/interestController");
+const { sendInterest } = require("../controllers/interestController");
+// const {
+//    sendInterest,
+//     // acceptInterest,
+//     // rejectInterest,
+//     // getReceivedInterests,
+//     // getSentInterests,
+//     // getMatches,
+// } = require("../controllers/interestController");
 
 /* =========================
    Send Interest
 ========================= */
-router.post(
-    "/send-interest/:receiverId",
-    authMiddleware,
-    sendInterest
-);
+// router.post(
+//     "/send-interest/:receiverId",
+//     authMiddleware,
+//     sendInterest
+// );
+
+
+router.post("/send-interest/:receiverId",authMiddleware, sendInterest)
 
 /* =========================
    Accept Interest

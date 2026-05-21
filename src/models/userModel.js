@@ -9,6 +9,16 @@ const userSchema = new mongoose.Schema(
       unique: true,
     },
 
+    country: {
+      type: String,
+      default: "India"
+    },
+    state: String,
+    city: String,
+    citizenship: {
+      type: String,
+      default: "Indian"
+    },
     email: {
       type: String,
       lowercase: true,
@@ -86,6 +96,10 @@ const userSchema = new mongoose.Schema(
     profession: String,
 
     annualIncome: String,
+    incomeValue: {              // Filtering ke liye logic: 2500000
+      type: Number,
+      index: true
+    },
 
     // STEP 3 — ROOTS & FAMILY
     familyStatus: {
@@ -137,12 +151,12 @@ const userSchema = new mongoose.Schema(
 
       smoking: {
         type: String,
-        enum: ["No", "Yes", "Occasionally"],
+        enum: ["Never", "Occasionally", "Regularly"],
       },
 
       drinking: {
         type: String,
-        enum: ["No", "Yes", "Occasionally"],
+        enum: ["Never", "Occasionally", "Regularly"],
       },
 
       interests: [String],
@@ -263,9 +277,14 @@ const userSchema = new mongoose.Schema(
       enum: ['FREE', 'GOLD', 'PREMIUM', 'ELITE'],
       default: 'FREE'
     },
-
+    isReported: {
+      type: Boolean,
+      default: false,
+    },
     lastSeen: Date,
   },
+
+
   {
     timestamps: true,
   }

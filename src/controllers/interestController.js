@@ -1,5 +1,3 @@
-
-
 const User = require("../models/userModel");
 
 const sendInterest = async (req, res) => {
@@ -10,7 +8,6 @@ const sendInterest = async (req, res) => {
         /* =========================
            Basic Checks
         ========================= */
-
         if (!receiverId) {
             return res.status(400).json({
                 success: false,
@@ -28,9 +25,10 @@ const sendInterest = async (req, res) => {
         /* =========================
            Find Both Users
         ========================= */
-
-        const sender = await User.findById(senderId);
-        const receiver = await User.findById(receiverId);
+        const [sender, receiver] = await Promise.all([
+            User.findById(senderId),
+            User.findById(receiverId),
+        ]);
 
         if (!sender || !receiver) {
             return res.status(404).json({
@@ -42,7 +40,6 @@ const sendInterest = async (req, res) => {
         /* =========================
            Blocked / Inactive Checks
         ========================= */
-
         if (!receiver.isActive || receiver.isBlocked) {
             return res.status(400).json({
                 success: false,
@@ -51,25 +48,16 @@ const sendInterest = async (req, res) => {
         }
 
         /* =========================
-           Already Sent Check
+           Already Sent / Matched Check
         ========================= */
-
-        const alreadySent = sender.interestsSent.includes(receiverId);
-
-        if (alreadySent) {
+        if (sender.interestsSent.includes(receiverId)) {
             return res.status(400).json({
                 success: false,
                 message: "Interest already sent",
             });
         }
 
-        /* =========================
-           Already Match Check
-        ========================= */
-
-        const alreadyMatched = sender.matches.includes(receiverId);
-
-        if (alreadyMatched) {
+        if (sender.matches.includes(receiverId)) {
             return res.status(400).json({
                 success: false,
                 message: "Already matched",
@@ -79,21 +67,17 @@ const sendInterest = async (req, res) => {
         /* =========================
            Save Data
         ========================= */
-
         sender.interestsSent.push(receiverId);
         receiver.interestsReceived.push(senderId);
 
-        await sender.save();
-        await receiver.save();
+        await Promise.all([sender.save(), receiver.save()]);
 
         return res.status(200).json({
             success: true,
             message: "Interest sent successfully",
         });
-
     } catch (error) {
-        console.log("Send Interest Error:", error);
-
+        console.error("Send Interest Error:", error);
         return res.status(500).json({
             success: false,
             message: "Server Error",
