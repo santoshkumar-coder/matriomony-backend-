@@ -1,5 +1,5 @@
 const jwt = require("jsonwebtoken");
-
+const Admin = require("../models/Admin")
 const authMiddleware = async (req, res, next) => {
   try {
 
@@ -72,20 +72,23 @@ const verifyAdmin = async (req, res, next) => {
       return res.status(401).json({ message: "No token, authorization denied" });
     }
 
-    const decoded = jwt.verify(token, process.env.JWT_SECRET );
-
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    
     const admin = await Admin.findById(decoded.id);
+
     if (!admin || !admin.isActive) {
       return res.status(401).json({ message: "Unauthorized: Admin access only" });
     }
 
-    if (admin.role !== "admin" && admin.role !== "superadmin") {
+    const allowedRoles = ["admin", "superadmin"];
+    if (!allowedRoles.includes(admin.role)) {
       return res.status(403).json({ message: "Forbidden: You don't have permission" });
     }
 
     req.admin = admin; 
     next();
   } catch (error) {
+    console.log("Auth Error:", error.message);
     res.status(401).json({ message: "Token is not valid" });
   }
 };
