@@ -236,6 +236,47 @@ const userSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+
+    // send interest 
+    interestsSent: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+      },
+    ],
+
+    interestsReceived: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+      },
+    ],
+
+    matches: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+      },
+    ],
+
+    rejectedProfiles: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+      },
+    ],
+
+    blockedProfiles: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+      },
+    ],
+    subscriptionTier: {
+      type: String,
+      enum: ['FREE', 'GOLD', 'PREMIUM', 'ELITE'],
+      default: 'FREE'
+    },
     isReported: {
       type: Boolean,
       default: false,
