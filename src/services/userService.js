@@ -56,9 +56,34 @@ const updateUserService = async (id, updateData) => {
   return updatedUser;
 };
 
+const getUserDashboardStatistics = async () => {
+  const oneWeekAgo = new Date();
+  oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+
+  const [
+    totalUsers,
+    newUsersLastWeek,
+    activeUsers,
+    reportedUsers
+  ] = await Promise.all([
+    User.countDocuments(),
+    User.countDocuments({ createdAt: { $gte: oneWeekAgo } }),
+    User.countDocuments({ isActive: true }),
+    User.countDocuments({ isReported: true }),
+  ]);
+
+  return {
+    totalUsers,
+    newUsersLastWeek,
+    activeUsers,
+    reportedUsers,
+  };
+};
+
 module.exports = {
   createUserService,
   getAllUsersService,
   getUserByIdService,
-  updateUserService 
+  updateUserService ,
+  getUserDashboardStatistics
 };

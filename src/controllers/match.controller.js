@@ -30,7 +30,6 @@ exports.getPersonalizedMatches = async (req, res) => {
   try {
     const currentUser = req.user;
 
-    // Check if preferences exist
     if (!currentUser.partnerPreference) {
       return res.status(400).json({ success: false, message: "Please set your partner preferences first" });
     }

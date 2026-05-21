@@ -22,7 +22,6 @@ const getUserStats = async (req, res) => {
 
 const searchUsers = async (req, res) => {
   try {
-    // req.query se saare search params service ko pass karein
     const users = await dashBoardService.searchUsersInDB(req.query);
 
     return res.status(200).json({

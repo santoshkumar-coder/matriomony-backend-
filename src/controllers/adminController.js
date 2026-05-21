@@ -1,5 +1,5 @@
 const adminService = require("../services/adminService");
-
+const { getUserDashboardStatistics } = require("../services/userService");
 exports.register = async (req, res) => {
   try {
     const admin = await adminService.registerAdmin(req.body);
@@ -28,5 +28,25 @@ exports.login = async (req, res) => {
     });
   } catch (error) {
     res.status(401).json({ success: false, message: error.message });
+  }
+};
+
+
+exports.getStats = async (req, res) => {
+  try {
+    const stats = await getUserDashboardStatistics();
+
+    return res.status(200).json({
+      success: true,
+      message: "Admin statistics retrieved successfully",
+      data: stats,
+    });
+  } catch (error) {
+    // Error handling
+    return res.status(500).json({
+      success: false,
+      message: "Internal Server Error",
+      error: error.message,
+    });
   }
 };

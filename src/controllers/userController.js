@@ -1,5 +1,5 @@
 const asyncHandler = require("../utils/asyncHandler");
-const { createUserService, getAllUsersService, getUserByIdService, updateUserService  } = require("../services/userService");
+const { createUserService, getAllUsersService, getUserByIdService, updateUserService,getUserDashboardStatistics  } = require("../services/userService");
 const cleanBody = require("../utils/cleanBody");
 
 
@@ -72,5 +72,6 @@ const userController = {
     })
 
 }
+
 
 module.exports = userController;
