@@ -31,7 +31,8 @@ app.use("/api/v1/success-stories", require("./routes/successStoryRoutes"));
 app.use('/api/v1/interests', require('./routes/sendInterestRoutes'));
 app.use("/api/v1/matches", require("./routes/match.routes"));
 app.use("/api/v1/dashboardStats", require("./routes/dashboardStatsRoutes"))
-app.use("/api/v1/admin", require("./routes/adminRoutes"))
+app.use("/api/v1/admin", require("./routes/adminRoutes"));
+app.use("/api/v1/banners", require("./routes/bannerRoutes"));
 
 app.use(globalErrorHandler);
 module.exports = app;
