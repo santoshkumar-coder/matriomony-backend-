@@ -1,8 +1,7 @@
 const asyncHandler = require("../utils/asyncHandler");
-const { createUserService, getAllUsersService, getUserByIdService, updateUserService, getUserDashboardStatistics } = require("../services/userService");
+const { createUserService, getAllUsersService, getUserByIdService, updateUserService,getUserDashboardStatistics,fetchFilteredUsersService  } = require("../services/userService");
 const cleanBody = require("../utils/cleanBody");
-
-
+const userService = require("../services/userService");
 
 const userController = {
     createUser: asyncHandler(async (req, res) => {
@@ -39,7 +38,16 @@ const userController = {
         })
 
     }),
+ getFilteredUsers: asyncHandler(async (req, res) => {
+        const users = await fetchFilteredUsersService(req.query);
 
+        res.status(200).json({
+            success: true,
+            message: "Profiles filtered successfully",
+            count: users.length,
+            data: users,
+        });
+    }),
 
     getUserById: asyncHandler(async (req, res) => {
         const user = await getUserByIdService(req.params.id);
@@ -72,6 +80,8 @@ const userController = {
     })
 
 }
+
+
 
 
 module.exports = userController;
