@@ -6,8 +6,8 @@ const getUserStats = async (req, res) => {
 
     return res.status(200).json({
       success: true,
-      message: "Stats and User data fetched successfully",
-      data: stats,
+      message: "Dashboard data fetched successfully",
+      data: stats, // Isme summary (counts) upar aayenge
     });
   } catch (error) {
     console.error("Error in getUserStats Controller:", error);
@@ -18,8 +18,6 @@ const getUserStats = async (req, res) => {
     });
   }
 };
-
-
 const searchUsers = async (req, res) => {
   try {
     const users = await dashBoardService.searchUsersInDB(req.query);

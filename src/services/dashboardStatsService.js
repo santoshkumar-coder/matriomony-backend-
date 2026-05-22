@@ -5,37 +5,50 @@ const getUserStatsFromDB = async () => {
   const oneMonthAgo = new Date();
   oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
 
-  // Parallel queries to fetch Data
-  const [allUsers, newUsersList, activeUsersList, reportedUsersList] = await Promise.all([
-    // 1. All Users
+  // Parallel queries: Counts aur Data ek saath fetch karne ke liye
+  const [
+    totalCount,
+    newCount,
+    activeCount,
+    reportedCount,
+    premiumCount,
+    allUsers,
+    newUsersList,
+    activeUsersList,
+    reportedUsersList,
+    premiumUsersList
+  ] = await Promise.all([
+    // Counts (Fast Queries)
+    User.countDocuments({}),
+    User.countDocuments({ createdAt: { $gte: oneMonthAgo } }),
+    User.countDocuments({ isActive: true }),
+    User.countDocuments({ isReported: true }),
+    User.countDocuments({ subscriptionTier: { $in: ["GOLD", "PREMIUM", "ELITE"] } }),
+
+    // Full Data (Heavier Queries)
     User.find({}),
-
-    // 2. New Users (Last 30 days)
     User.find({ createdAt: { $gte: oneMonthAgo } }),
-
-    // 3. Active Users
     User.find({ isActive: true }),
-
-    // 4. Reported Users
     User.find({ isReported: true }),
+    User.find({ subscriptionTier: { $in: ["GOLD", "PREMIUM", "ELITE"] } }),
   ]);
 
   return {
-    total: {
-      count: allUsers.length,
-      users: allUsers,
+    // 1. Saare counts sabse upar
+    summary: {
+      totalUsers: totalCount,
+      newUsers: newCount,
+      activeUsers: activeCount,
+      reportedUsers: reportedCount,
+      premiumUsers: premiumCount,
     },
-    newUsers: {
-      count: newUsersList.length,
-      users: newUsersList,
-    },
-    active: {
-      count: activeUsersList.length,
-      users: activeUsersList,
-    },
-    reported: {
-      count: reportedUsersList.length,
-      users: reportedUsersList,
+    // 2. Uske baad detailed list data
+    details: {
+      allUsersList: allUsers,
+      newUsersList: newUsersList,
+      activeUsersList: activeUsersList,
+      reportedUsersList: reportedUsersList,
+      premiumUsersList: premiumUsersList,
     },
   };
 };
