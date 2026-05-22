@@ -209,6 +209,24 @@ const loginUserService = async (data) => {
   };
 };
 
+const fetchFilteredUsersService = async (queryParams) => {
+    const { gender, religion, maritalStatus, city, country } = queryParams;
+
+    let query = {
+        isActive: true,
+        isBlocked: false,
+    };
+
+    if (gender) query.gender = gender;
+    if (religion) query.religion = religion;
+    if (maritalStatus) query.maritalStatus = maritalStatus;
+    if (city) query.city = city;
+    if (country) query.country = country;
+
+    const users = await User.find(query).sort({ createdAt: -1 });
+
+    return users;
+};
 module.exports = {
   createUserService,
   getAllUsersService,
@@ -217,5 +235,6 @@ module.exports = {
   updateUserService ,
   getUserDashboardStatistics,
   getAllUsersServiceForAdmin,
-  updateUserService
+  updateUserService,
+  fetchFilteredUsersService
 };
