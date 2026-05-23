@@ -38,4 +38,4 @@ userNotificationSchema.index({
   expireAfterSeconds: 60 * 60 * 24 * 30
 });
 
-module.exports = mongoose.model("UserNotification", userNotificationSchema);
+module.exports = mongoose.model("userNotification", userNotificationSchema);

@@ -10,6 +10,7 @@ const createNotificationService = async ({
 }) => {
   // validation
   if (!userId || !title || !message) {
+    console.log( userId, title, message)
     throw new AppError("Missing required fields", 400);
   }
 
