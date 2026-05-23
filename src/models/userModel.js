@@ -281,6 +281,11 @@ const userSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+
+    reportReason: {
+  type: String,
+  default: ""
+},
     lastSeen: Date,
   },
 
