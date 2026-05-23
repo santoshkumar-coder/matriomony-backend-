@@ -78,10 +78,10 @@ const start = async () => {
   await connectDB();
 
   try {
-    // await connectProducer();
-    // await connectConsumer();
+    await connectProducer();
+    await connectConsumer();
   } catch (err) {
-    // console.error('⚠️  Kafka unavailable, continuing without it:', err.message);
+    console.error('⚠️  Kafka unavailable, continuing without it:', err.message);
   }
 
   app.listen(PORT, '0.0.0.0',() => {

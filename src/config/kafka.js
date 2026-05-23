@@ -5,7 +5,7 @@ const kafka = new Kafka({
   brokers: [process.env.KAFKA_BROKER || '187.127.137.216:9092'],
   retry: {
     initialRetryTime: 300,
-    retries: 5,
+    retries: 3,
   },
 });
 const brokerHost = process.env.KAFKA_BROKER || '187.127.137.216';
