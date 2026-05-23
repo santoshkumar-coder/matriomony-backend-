@@ -4,13 +4,19 @@ const Banner = require('../models/Banner');
 
 exports.createBanner = async (req, res) => {
     try {
+         console.log("Body:", req.body);
+    console.log("File:", req.file);
         const { title, description, position } = req.body; 
 
         if (!req.file) {
             return res.status(400).json({ success: false, message: "Image is required" });
         }
 
-        const baseUrl = process.env.BASE_URL ;
+        let baseUrl = process.env.BASE_URL || "http://187.127.137.216:5000";
+        if (baseUrl.endsWith('/')) {
+            baseUrl = baseUrl.slice(0, -1);
+        }
+
         const liveImageUrl = `${baseUrl}/uploads/${req.file.filename}`;
 
         const newBanner = new Banner({
@@ -27,11 +33,15 @@ exports.createBanner = async (req, res) => {
             message: "Banner created successfully",
             data: newBanner
         });
+
     } catch (error) {
+        if (req.file) {
+            fs.unlinkSync(req.file.path); 
+        }
+        
         res.status(500).json({ success: false, message: error.message });
     }
 };
-
 
 exports.getBanners = async (req, res) => {
     try {
