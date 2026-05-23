@@ -40,7 +40,7 @@ const createUserService = async (data) => {
   data.password = hashedPassword;
 
   const user = await User.create(data);
- 
+
   // sendEvent('user-created', {
   //   _id: user._id,
   //   name: user.fullName,
@@ -63,7 +63,7 @@ const createUserService = async (data) => {
 
 const getAllUsersService = async () => {
   const users = await User.find();
-  
+
 
   return {
     users,
@@ -80,7 +80,7 @@ const getUserByIdService = async (id) => {
   }
 
   return user;
-}; 
+};
 
 
 const updateUserService = async (id, updateData) => {
@@ -127,10 +127,10 @@ const getAllUsersServiceForAdmin = async (page, limit) => {
 
   const [users, totalUsersCount] = await Promise.all([
     User.find()
-      .sort({ createdAt: -1 }) 
+      .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit)
-      .select("-password"), 
+      .select("-password"),
     User.countDocuments(),
   ]);
 
@@ -210,29 +210,29 @@ const loginUserService = async (data) => {
 };
 
 const fetchFilteredUsersService = async (queryParams) => {
-    const { gender, religion, maritalStatus, city, country } = queryParams;
+  const { gender, religion, maritalStatus, city, country } = queryParams;
 
-    let query = {
-        isActive: true,
-        isBlocked: false,
-    };
+  let query = {
+    isActive: true,
+    isBlocked: false,
+  };
 
-    if (gender) query.gender = gender;
-    if (religion) query.religion = religion;
-    if (maritalStatus) query.maritalStatus = maritalStatus;
-    if (city) query.city = city;
-    if (country) query.country = country;
+  if (gender) query.gender = gender;
+  if (religion) query.religion = religion;
+  if (maritalStatus) query.maritalStatus = maritalStatus;
+  if (city) query.city = city;
+  if (country) query.country = country;
 
-    const users = await User.find(query).sort({ createdAt: -1 });
+  const users = await User.find(query).sort({ createdAt: -1 });
 
-    return users;
+  return users;
 };
 module.exports = {
   createUserService,
   getAllUsersService,
   loginUserService,
   getUserByIdService,
-  updateUserService ,
+  updateUserService,
   getUserDashboardStatistics,
   getAllUsersServiceForAdmin,
   updateUserService,
