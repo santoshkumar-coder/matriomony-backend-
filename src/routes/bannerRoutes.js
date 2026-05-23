@@ -1,0 +1,14 @@
+const express = require('express');
+const router = express.Router();
+const upload = require('../config/multer');
+const bannerController = require('../controllers/bannerController');
+const { verifyAdmin } = require("../middlewares/authMiddleware");
+
+
+
+router.post('/create', verifyAdmin, upload.single('image'), bannerController.createBanner);
+
+
+router.get('/all',verifyAdmin, bannerController.getBanners);
+
+module.exports = router;

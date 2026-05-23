@@ -84,7 +84,7 @@ const start = async () => {
     console.error('⚠️  Kafka unavailable, continuing without it:', err.message);
   }
 
-  app.listen(PORT, () => {
+  app.listen(PORT, '0.0.0.0',() => {
     console.log('------------------------------');
     console.log(`|| Service running on ${PORT} ||`);
     console.log('------------------------------');
