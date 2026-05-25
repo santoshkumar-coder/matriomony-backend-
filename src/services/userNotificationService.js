@@ -1,7 +1,12 @@
 const UserNotification = require("../models/UserNotification");
 const AppError = require("../utils/AppError");
-const { sendNotification } = require("./notificationService");
+// const { sendNotification } = require("./notificationService");
+const { getIO } = require("../socket/socket");
 
+const sendNotification = (userId, data) => {
+  const io = getIO();
+  io.to(userId).emit("notification", data);
+};
 
 const createNotificationService = async ({
   userId,
