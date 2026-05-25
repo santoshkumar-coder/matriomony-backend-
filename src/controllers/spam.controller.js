@@ -12,7 +12,7 @@ class SpamController {
 
   async handleSearch(req, res) {
     try {
-        const { q } = req.query; // Query parameter 'q' se search term lenge
+        const { q } = req.query; 
         const results = await spamService.searchSpamUsers(q);
         
         res.status(200).json({

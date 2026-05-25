@@ -66,13 +66,11 @@ class SpamService {
     }
 
     const users = await User.find(filter)
-      // DHAYAN DEIN: reportReason yahan hona zaroori hai
       .select("fullName email photos isReported isBlocked createdAt reportReason") 
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(Number(limit));
 
-    // Debugging ke liye terminal mein check karein
     console.log("Raw Users from DB:", JSON.stringify(users, null, 2));
 
     const total = await User.countDocuments(filter);
