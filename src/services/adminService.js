@@ -1,6 +1,7 @@
 const Admin = require("../models/Admin");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
+const User = require("../models/userModel")
 
 class AdminService {
     async registerAdmin(adminData) {
@@ -20,6 +21,35 @@ class AdminService {
         return adminResponse;
     }
 
+
+    async fetchAllUsers(queryFilters) {
+    const { status, gender, page = 1, limit = 10 } = queryFilters;
+    
+    let query = { role: "user" }; 
+
+    if (status) query.moderationStatus = status;
+    if (gender) query.gender = gender;
+
+    const users = await User.find(query)
+      .sort({ createdAt: -1 })
+      .skip((page - 1) * limit)
+      .limit(limit);
+
+    const total = await User.countDocuments(query);
+
+    return { users, total, page, totalPages: Math.ceil(total / limit) };
+  }
+
+
+
+  async updateModerationStatus(userId, status) {
+    const user = await User.findByIdAndUpdate(
+      userId,
+      { moderationStatus: status },
+      { new: true, runValidators: true }
+    );
+    return user;
+  }
     async loginAdmin(email, password) {
         const admin = await Admin.findOne({ email }).select("+password");
         if (!admin) {

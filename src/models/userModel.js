@@ -282,10 +282,17 @@ const userSchema = new mongoose.Schema(
       default: false,
     },
 
+    moderationStatus: {
+      type: String,
+      enum: ["Pending", "Approved", "Rejected"],
+      default: "Pending",
+    },
+
+
     reportReason: {
-  type: String,
-  default: ""
-},
+      type: String,
+      default: ""
+    },
     lastSeen: Date,
   },
 
