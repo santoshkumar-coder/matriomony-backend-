@@ -4,7 +4,7 @@ const validate = require("../middlewares/validate");
 const { createUserSchema } = require("../validators/user.validator");
 const upload = require('../config/multer');
 const { loginUserService } = require('../services/userService');
-const getUsers = require('../controllers/userController')
+const getUsers = require('../controllers/userController');
 
 
 /**
@@ -247,7 +247,7 @@ router.get("/get-user/:id", userController.getUserById);
  *         description: Success
  */
 router.get("/filtered-users", userController.getFilteredUsers)
-
+router.get("/getModerateStatus/:id", userController.getMyModerationStatus);
 router.put("/update-user/:id", upload.array('images', 5), userController.updateUser);
 router.post('/login', loginUserService)
 module.exports = router;

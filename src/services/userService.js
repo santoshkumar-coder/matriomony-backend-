@@ -97,6 +97,16 @@ const updateUserService = async (id, updateData) => {
   return updatedUser;
 };
 
+
+const getModerationStatusService = async (userId) => {
+  const user = await User.findById(userId).select("moderationStatus reportReason");
+  if (!user) {
+    throw new AppError("User not found", 404);
+  }
+  return user;
+};
+
+
 const getUserDashboardStatistics = async () => {
   const oneWeekAgo = new Date();
   oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
@@ -237,5 +247,6 @@ module.exports = {
   getUserDashboardStatistics,
   getAllUsersServiceForAdmin,
   updateUserService,
-  fetchFilteredUsersService
+  fetchFilteredUsersService,
+  getModerationStatusService
 };
