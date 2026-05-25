@@ -38,6 +38,8 @@ const userController = {
         })
 
     }),
+
+    
  getFilteredUsers: asyncHandler(async (req, res) => {
         const users = await fetchFilteredUsersService(req.query);
 
