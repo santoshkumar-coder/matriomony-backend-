@@ -34,6 +34,7 @@ app.use("/api/v1/dashboardStats", require("./routes/dashboardStatsRoutes"))
 app.use("/api/v1/admin", require("./routes/adminRoutes"));
 app.use("/api/v1/banners", require("./routes/bannerRoutes"));
 app.use("/api/v1/notifications", require("./routes/notificationRoutes"));
+app.use("/api/v1/spam", require("../src/routes/spamRoutes"))
 
 app.use(globalErrorHandler);
 module.exports = app;
