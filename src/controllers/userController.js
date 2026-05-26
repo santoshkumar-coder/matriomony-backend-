@@ -1,27 +1,34 @@
 const asyncHandler = require("../utils/asyncHandler");
 const { createUserService, getAllUsersService, getUserByIdService, getModerationStatusService, updateUserService, getUserDashboardStatistics, fetchFilteredUsersService,preOnboardingOptionsServie } = require("../services/userService");
 const cleanBody = require("../utils/cleanBody");
-const userService = require("../services/userService");
 
 const userController = {
     createUser: asyncHandler(async (req, res) => {
-        req.body = cleanBody(req.body)
+        req.body = cleanBody(req.body);
 
         if (req.files && req.files.length > 0) {
-
             req.body.photos = req.files.map((file, index) => ({
                 url: `/uploads/${file.filename}`,
                 isPrimary: index === 0,
             }));
         }
 
-        const
-            { user, totaluser } = await createUserService(req.body);
+        const user = await createUserService(req.body);
 
         res.status(201).json({
             success: true,
             message: "User created successfully",
-            totaluser,
+            data: user,
+        });
+    }),
+
+    loginUser: asyncHandler(async (req, res) => {
+        const { user, token } = await loginUserService(req.body);
+
+        res.status(200).json({
+            success: true,
+            message: "Login successful",
+            token,
             data: user,
         });
     }),
@@ -34,9 +41,7 @@ const userController = {
             message: "Users retrieved successfully",
             totalUsers: result.totalUsers,
             data: result.users,
-
-        })
-
+        });
     }),
 
 
@@ -77,7 +82,6 @@ const userController = {
         });
     }),
 
-
     updateUser: asyncHandler(async (req, res) => {
         req.body = cleanBody(req.body);
 
@@ -103,10 +107,6 @@ const userController = {
             data
         })
     })
-
-}
-
-
-
+};
 
 module.exports = userController;

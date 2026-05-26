@@ -1,19 +1,9 @@
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
-
 const User = require("../models/userModel");
 const AppError = require("../utils/AppError");
-const { publishMessage } = require('../kafka/producer');
-const { TOPICS } = require('../kafka/topics');
-const { sendEvent } = require('../config/kafka');
-
-
-/* =========================
-   Create User
-========================= */
 
 const createUserService = async (data) => {
-
   const existingUser = await User.findOne({
     $or: [
       { phone: data.phone },
@@ -28,49 +18,19 @@ const createUserService = async (data) => {
     );
   }
 
-  /* =========================
-     Hash Password
-  ========================= */
-
-  const hashedPassword = await bcrypt.hash(
-    data.password,
-    10
-  );
-
+  const hashedPassword = await bcrypt.hash(data.password, 10);
   data.password = hashedPassword;
 
   const user = await User.create(data);
-
-  // sendEvent('user-created', {
-  //   _id: user._id,
-  //   name: user.fullName,
-  //   email: user.email,
-  //   phone: user.phone,
-  //   createdAt: user.createdAt,
-  // })
-
-  // await publishMessage('user-created', {
-  //   _id: user._id,
-  //   name: user.fullName,
-  //   email: user.email,
-  //   phone: user.phone,
-  //   createdAt: user.createdAt,
-  // });
-
   return user;
 };
 
-
 const getAllUsersService = async () => {
   const users = await User.find();
-
-
   return {
     users,
-    // token,
   };
 };
-
 
 const getUserByIdService = async (id) => {
   const user = await User.findById(id);
@@ -82,9 +42,7 @@ const getUserByIdService = async (id) => {
   return user;
 };
 
-
 const updateUserService = async (id, updateData) => {
-
   const updatedUser = await User.findByIdAndUpdate(id, updateData, {
     new: true,
     runValidators: true,
@@ -97,7 +55,6 @@ const updateUserService = async (id, updateData) => {
   return updatedUser;
 };
 
-
 const getModerationStatusService = async (userId) => {
   const user = await User.findById(userId).select("moderationStatus reportReason");
   if (!user) {
@@ -105,7 +62,6 @@ const getModerationStatusService = async (userId) => {
   }
   return user;
 };
-
 
 const getUserDashboardStatistics = async () => {
   const oneWeekAgo = new Date();
@@ -130,7 +86,6 @@ const getUserDashboardStatistics = async () => {
     reportedUsers,
   };
 };
-
 
 const getAllUsersServiceForAdmin = async (page, limit) => {
   const skip = (page - 1) * limit;
@@ -159,21 +114,10 @@ const getAllUsersServiceForAdmin = async (page, limit) => {
   };
 };
 
-
-/* =========================
-   Login User
-========================= */
-
 const loginUserService = async (data) => {
-
   const { email, password } = data;
 
-  /* =========================
-     Find User
-  ========================= */
-
-  const user = await User.findOne({ email })
-    .select("password");
+  const user = await User.findOne({ email }).select("+password");
 
   if (!user) {
     throw new AppError(
@@ -181,10 +125,6 @@ const loginUserService = async (data) => {
       400
     );
   }
-
-  /* =========================
-     Compare Password
-  ========================= */
 
   const isPasswordMatched = await bcrypt.compare(
     password,
@@ -198,27 +138,24 @@ const loginUserService = async (data) => {
     );
   }
 
-  /* =========================
-     Generate Token
-  ========================= */
-
   const token = jwt.sign(
     {
       id: user._id,
       role: user.role,
     },
-    process.env.JWT_SECRET,
+    process.env.JWT_SECRET || "fallback_secret_key_123",
     {
       expiresIn: "7d",
     }
   );
+
+  user.password = undefined;
 
   return {
     user,
     token,
   };
 };
-
 
 const fetchFilteredUsersService = async (queryParams) => {
   const { gender, religion, maritalStatus, city, country } = queryParams;
@@ -235,7 +172,6 @@ const fetchFilteredUsersService = async (queryParams) => {
   if (country) query.country = country;
 
   const users = await User.find(query).sort({ createdAt: -1 });
-
   return users;
 };
 
@@ -290,7 +226,6 @@ module.exports = {
   updateUserService,
   getUserDashboardStatistics,
   getAllUsersServiceForAdmin,
-  updateUserService,
   fetchFilteredUsersService,
   getModerationStatusService,
   preOnboardingOptionsServie
