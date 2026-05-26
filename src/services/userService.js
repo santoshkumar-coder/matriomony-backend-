@@ -49,13 +49,13 @@ const createUserService = async (data) => {
   //   createdAt: user.createdAt,
   // })
 
-  await publishMessage('user-created', {
-    _id: user._id,
-    name: user.fullName,
-    email: user.email,
-    phone: user.phone,
-    createdAt: user.createdAt,
-  });
+  // await publishMessage('user-created', {
+  //   _id: user._id,
+  //   name: user.fullName,
+  //   email: user.email,
+  //   phone: user.phone,
+  //   createdAt: user.createdAt,
+  // });
 
   return user;
 };

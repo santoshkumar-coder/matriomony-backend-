@@ -1,5 +1,5 @@
 const asyncHandler = require("../utils/asyncHandler");
-const { createUserService, getAllUsersService, getUserByIdService, updateUserService,getUserDashboardStatistics,fetchFilteredUsersService  } = require("../services/userService");
+const { createUserService, getAllUsersService, getUserByIdService, updateUserService, getUserDashboardStatistics, fetchFilteredUsersService } = require("../services/userService");
 const cleanBody = require("../utils/cleanBody");
 const userService = require("../services/userService");
 
@@ -38,7 +38,8 @@ const userController = {
         })
 
     }),
- getFilteredUsers: asyncHandler(async (req, res) => {
+    
+    getFilteredUsers: asyncHandler(async (req, res) => {
         const users = await fetchFilteredUsersService(req.query);
 
         res.status(200).json({
