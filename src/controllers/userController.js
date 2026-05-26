@@ -1,5 +1,5 @@
 const asyncHandler = require("../utils/asyncHandler");
-const { createUserService, getAllUsersService, getUserByIdService,getModerationStatusService, updateUserService, getUserDashboardStatistics, fetchFilteredUsersService,} = require("../services/userService");
+const { createUserService, getAllUsersService, getUserByIdService, getModerationStatusService, updateUserService, getUserDashboardStatistics, fetchFilteredUsersService,preOnboardingOptionsServie } = require("../services/userService");
 const cleanBody = require("../utils/cleanBody");
 const userService = require("../services/userService");
 
@@ -40,7 +40,7 @@ const userController = {
     }),
 
 
-       
+
     getFilteredUsers: asyncHandler(async (req, res) => {
         const users = await fetchFilteredUsersService(req.query);
 
@@ -63,9 +63,9 @@ const userController = {
     }),
 
 
- getMyModerationStatus: asyncHandler(async (req, res) => {
-        const { id } = req.params; 
-        
+    getMyModerationStatus: asyncHandler(async (req, res) => {
+        const { id } = req.params;
+
         const statusData = await getModerationStatusService(id);
 
         res.status(200).json({
@@ -95,6 +95,13 @@ const userController = {
             message: "User updated successfully",
             data: updatedUser,
         });
+    }),
+
+    getPreBoardingOptions: asyncHandler(async (req, res) => {
+       const data = await preOnboardingOptionsServie();
+        res.status(200).json({
+            data
+        })
     })
 
 }

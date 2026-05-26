@@ -238,6 +238,50 @@ const fetchFilteredUsersService = async (queryParams) => {
 
   return users;
 };
+
+
+const preOnboardingOptionsServie = async () => {
+  const accountCreatefor = [
+    "Self",
+    "Son",
+    "Daughter",
+    "Brother",
+    "Sister",
+    "Friend",
+    "Relative",
+  ]
+  let gender = [
+    "Male", "Female", "Other"
+  ]
+  let religion = [
+    "Hindu", "Muslim", "Christian", "Sikh", "Jain", "Buddhist", "Parsi", "Jewish", "Other"
+  ]
+  let motherTongue = [
+    "Hindi", "English", "Bengali", "Telugu", "Marathi", "Tamil", "Gujarati", "Urdu", "Kannada", "Odia", "Malayalam", "Punjabi", "Assamese", "Maithili", "Other"
+  ]
+  let highestQualification = [
+    'High school', 'Bachelor', 'Master', 'PHD', 'Other'
+  ]
+  let annualIncome = [
+    '0-2 lakhs', '2-5 lakhs', '5-10 lakhs', '10-20 lakhs', '20+ lakhs', 'other'
+  ]
+  let profession = [
+    'Engineer', 'Doctor', 'Teacher', 'Business', 'Artist', 'Other', 'Student'
+  ]
+  let maritalStatus = [
+    "unMarried",
+    "Divorced",
+    "Widowed",
+    "Awaiting Divorce",
+  ]
+  let interest = [
+    'Cooking', 'Reading', 'Traveling', 'Sports', 'Music', 'Movies', 'Other'
+  ]
+  return {
+    accountCreatefor, gnder, religion, motherTongue, highestQualification, annualIncome, profession, maritalStatus, interest
+
+  }
+}
 module.exports = {
   createUserService,
   getAllUsersService,
@@ -248,5 +292,6 @@ module.exports = {
   getAllUsersServiceForAdmin,
   updateUserService,
   fetchFilteredUsersService,
-  getModerationStatusService
+  getModerationStatusService,
+  preOnboardingOptionsServie
 };

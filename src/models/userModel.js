@@ -64,9 +64,17 @@ const userSchema = new mongoose.Schema(
 
     dob: Date,
 
-    religion: String,
+    religion: {
+      type: String,
+      enum: ["Hindu", "Muslim", "Christian", "Sikh", "Jain", "Buddhist", "Parsi", "Jewish", "Other"],
+      default: "Hindu"
+    },
 
-    motherTongue: String,
+    motherTongue: {
+      type: String,
+      enum: ["Hindi", "English", "Bengali", "Telugu", "Marathi", "Tamil", "Gujarati", "Urdu", "Kannada", "Odia", "Malayalam", "Punjabi", "Assamese", "Maithili", "Other"],
+      default: "Hindi"
+    },
 
     maritalStatus: {
       type: String,
@@ -79,7 +87,10 @@ const userSchema = new mongoose.Schema(
     },
 
     // STEP 2 — EDUCATION & CAREER
-    highestQualification: String,
+    highestQualification: {
+      type:String,
+      enum: ['High school', 'Bachelor', 'Master', 'PHD', 'Other']
+    },
 
     college: String,
 
@@ -93,7 +104,12 @@ const userSchema = new mongoose.Schema(
       ],
     },
 
-    profession: String,
+    profession: {
+      type: String,
+      enum: [
+        'Engineer', 'Doctor', 'Teacher', 'Business', 'Artist', 'Other', 'Student'
+      ]
+    },
 
     annualIncome: String,
     incomeValue: {              // Filtering ke liye logic: 2500000
@@ -159,7 +175,10 @@ const userSchema = new mongoose.Schema(
         enum: ["Never", "Occasionally", "Regularly"],
       },
 
-      interests: [String],
+      interests: {
+        type: [String],
+        enum: ['Cooking', 'Reading', 'Traveling', 'Sports', 'Music', 'Movies', 'Other']
+      },
     },
 
     // STEP 6 — PHOTOS

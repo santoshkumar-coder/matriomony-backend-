@@ -249,6 +249,8 @@ router.get("/get-user/:id", userController.getUserById);
 router.get("/filtered-users", userController.getFilteredUsers)
 router.get("/getModerateStatus/:id", userController.getMyModerationStatus);
 router.put("/update-user/:id", upload.array('images', 5), userController.updateUser);
-router.post('/login', loginUserService)
+router.post('/login', loginUserService);
+
+router.get('/pre-boarding-options', userController.getPreBoardingOptions);
 module.exports = router;
 
