@@ -51,27 +51,29 @@ class SpamService {
     const { page = 1, limit = 10, search = "" } = query;
     const skip = (page - 1) * limit;
 
-    let filter = { $or: [{ isReported: true }, { isBlocked: true }] };
+    let filter = { 
+      $or: [{ isReported: true }, { isBlocked: true }] 
+    };
 
     if (search) {
-      filter.$and = [
-        { $or: [{ isReported: true }, { isBlocked: true }] },
-        {
-          $or: [
-            { fullName: { $regex: search, $options: "i" } },
-            { email: { $regex: search, $options: "i" } }
-          ]
-        }
-      ];
+      filter = {
+        $and: [
+          { $or: [{ isReported: true }, { isBlocked: true }] },
+          {
+            $or: [
+              { fullName: { $regex: search, $options: "i" } },
+              { email: { $regex: search, $options: "i" } }
+            ]
+          }
+        ]
+      };
     }
 
     const users = await User.find(filter)
       .select("fullName email photos isReported isBlocked createdAt reportReason") 
-      .sort({ createdAt: -1 })
+      .sort({ updatedAt: -1 }) 
       .skip(skip)
       .limit(Number(limit));
-
-    console.log("Raw Users from DB:", JSON.stringify(users, null, 2));
 
     const total = await User.countDocuments(filter);
 
@@ -80,11 +82,11 @@ class SpamService {
       name: u.fullName,
       email: u.email,
       avatar: u.photos?.find(p => p.isPrimary)?.url || u.photos[0]?.url || "",
-      
-      // Logic: Agar reportReason empty string hai toh fallback dikhao
       reason: (u.reportReason && u.reportReason.trim() !== "") ? u.reportReason : "Multiple Reports", 
+     
+      status: u.isBlocked ? "Banned" : "Detected",
       
-      status: u.isBlocked ? "Banned" : (u.isReported ? "Detected" : "Pending"),
+      isBlocked: u.isBlocked,
       joined: u.createdAt
     }));
 
@@ -92,17 +94,18 @@ class SpamService {
   }
 
   async blockToggle(id) {
+
     const user = await User.findById(id);
     if (!user) throw new Error("User not found");
-    user.isBlocked = !user.isBlocked;
-    return await user.save();
-  }
 
-  async deleteUser(id) {
-    return await User.findByIdAndDelete(id);
+  
+    const updatedUser = await User.findByIdAndUpdate(
+      id,
+      { isBlocked: !user.isBlocked },
+      { new: true, runValidators: false } 
+    );
+
+    return updatedUser;
   }
 }
-
-
-
 module.exports = new SpamService();

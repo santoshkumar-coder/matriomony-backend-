@@ -74,3 +74,56 @@ exports.getAllUsersForAdmin = async (req, res) => {
     });
   }
 };
+
+exports.getProfiles = async (req, res) => {
+  try {
+    const result = await adminService.fetchAllUsers(req.query);
+
+    res.status(200).json({
+      success: true,
+      message: "Profiles fetched successfully",
+      ...result,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Error fetching profiles",
+      error: error.message,
+    });
+  }
+};
+
+exports.moderateProfile = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const { status } = req.body;
+
+    if (!["Approved", "Rejected", "Pending"].includes(status)) {
+      return res.status(400).json({ 
+        success: false, 
+        message: "Invalid status. Use Approved, Rejected or Pending." 
+      });
+    }
+
+    const updatedUser = await adminService.updateModerationStatus(userId, status);
+
+    if (!updatedUser) {
+      return res.status(404).json({ 
+        success: false, 
+        message: "User not found" 
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: `Profile status updated to ${status}`,
+      data: updatedUser,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Error updating profile status",
+      error: error.message,
+    });
+  }
+};
