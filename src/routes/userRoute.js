@@ -30,5 +30,6 @@ router.get('/filtered-users', userController.getFilteredUsers);
 router.get('/getModerateStatus/:id', userController.getMyModerationStatus);
 router.put('/update-user/:id', upload.array('images', 5), parseJsonFields, userController.updateUser);
 router.post('/login', userController.loginUser);
+router.get('/pre-boarding-options', userController.getPreBoardingOptions);
 
 module.exports = router;

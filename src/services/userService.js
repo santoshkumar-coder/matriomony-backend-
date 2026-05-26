@@ -214,7 +214,7 @@ const preOnboardingOptionsServie = async () => {
     'Cooking', 'Reading', 'Traveling', 'Sports', 'Music', 'Movies', 'Other'
   ]
   return {
-    accountCreatefor, gnder, religion, motherTongue, highestQualification, annualIncome, profession, maritalStatus, interest
+    accountCreatefor, gender, religion, motherTongue, highestQualification, annualIncome, profession, maritalStatus, interest
 
   }
 }
