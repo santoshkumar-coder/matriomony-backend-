@@ -10,7 +10,7 @@ const userSchema = new mongoose.Schema(
     country: {
       type: String,
       default: "India"
-    },
+    }, 
     state: String,
     city: String,
     citizenship: {
@@ -34,15 +34,15 @@ const userSchema = new mongoose.Schema(
     },
     profileFor: {
       type: String,
-      enum: [
-        "Self",
-        "Son",
-        "Daughter",
-        "Brother",
-        "Sister",
-        "Friend",
-        "Relative",
-      ],
+      // enum: [
+      //   "Self",
+      //   "Son",
+      //   "Daughter",
+      //   "Brother",
+      //   "Sister",
+      //   "Friend",
+      //   "Relative",
+      // ],
     },
     fullName: {
       type: String,
@@ -51,54 +51,54 @@ const userSchema = new mongoose.Schema(
     },
     gender: {
       type: String,
-      enum: ["Male", "Female", "Other"],
+      // enum: ["Male", "Female", "Other"],
     },
     dob: Date,
 
     religion: {
       type: String,
-      enum: ["Hindu", "Muslim", "Christian", "Sikh", "Jain", "Buddhist", "Parsi", "Jewish", "Other"],
+      // enum: ["Hindu", "Muslim", "Christian", "Sikh", "Jain", "Buddhist", "Parsi", "Jewish", "Other"],
       default: "Hindu"
     },
 
     motherTongue: {
       type: String,
-      enum: ["Hindi", "English", "Bengali", "Telugu", "Marathi", "Tamil", "Gujarati", "Urdu", "Kannada", "Odia", "Malayalam", "Punjabi", "Assamese", "Maithili", "Other"],
+      // enum: ["Hindi", "English", "Bengali", "Telugu", "Marathi", "Tamil", "Gujarati", "Urdu", "Kannada", "Odia", "Malayalam", "Punjabi", "Assamese", "Maithili", "Other"],
       default: "Hindi"
     },
 
     maritalStatus: {
       type: String,
-      enum: [
-        "unMarried",
-        "Divorced",
-        "Widowed",
-        "Awaiting Divorce",
-      ],
+      // enum: [
+      //   "unMarried",
+      //   "Divorced",
+      //   "Widowed",
+      //   "Awaiting Divorce",
+      // ],
     },
 
     // STEP 2 — EDUCATION & CAREER
     highestQualification: {
-      type:String,
-      enum: ['High school', 'Bachelor', 'Master', 'PHD', 'Other']
+      type: String,
+      // enum: ['High school', 'Bachelor', 'Master', 'PHD', 'Other']
     },
 
     college: String,
     workingWith: {
       type: String,
-      enum: [
-        "Private",
-        "Government",
-        "Business",
-        "Self Employed",
-      ],
+      // enum: [
+      //   "Private",
+      //   "Government",
+      //   "Business",
+      //   "Self Employed",
+      // ],
     },
 
     profession: {
       type: String,
-      enum: [
-        'Engineer', 'Doctor', 'Teacher', 'Business', 'Artist', 'Other', 'Student'
-      ]
+      // enum: [
+      //   'Engineer', 'Doctor', 'Teacher', 'Business', 'Artist', 'Other', 'Student'
+      // ]
     },
 
     annualIncome: String,
@@ -108,15 +108,15 @@ const userSchema = new mongoose.Schema(
     },
     familyStatus: {
       type: String,
-      enum: ["Middle Class", "Upper Middle Class", "Rich", "Affluent"],
+      // enum: ["Middle Class", "Upper Middle Class", "Rich", "Affluent"],
     },
     familyType: {
       type: String,
-      enum: ["Joint", "Nuclear"],
+      // enum: ["Joint", "Nuclear"],
     },
     familyValues: {
       type: String,
-      enum: ["Traditional", "Moderate", "Liberal"],
+      // enum: ["Traditional", "Moderate", "Liberal"],
     },
     fatherOccupation: String,
     motherOccupation: String,
@@ -137,20 +137,20 @@ const userSchema = new mongoose.Schema(
     lifestyle: {
       diet: {
         type: String,
-        enum: ["Veg", "Non-Veg", "Eggetarian", "Vegan"],
+        // enum: ["Veg", "Non-Veg", "Eggetarian", "Vegan"],
       },
       smoking: {
         type: String,
-        enum: ["Never", "No", "Occasionally", "Regularly"],
+        // enum: ["Never", "No", "Occasionally", "Regularly"],
       },
       drinking: {
         type: String,
-        enum: ["Never", "No", "Occasionally", "Regularly"],
+        // enum: ["Never", "No", "Occasionally", "Regularly"],
       },
 
       interests: {
         type: [String],
-        enum: ['Cooking', 'Reading', 'Traveling', 'Sports', 'Music', 'Movies', 'Other']
+        // enum: ['Cooking', 'Reading', 'Traveling', 'Sports', 'Music', 'Movies', 'Other']
       },
     },
     photos: [
@@ -187,7 +187,7 @@ const userSchema = new mongoose.Schema(
       gotra: String,
       manglik: {
         type: String,
-        enum: ["Yes", "No", "Dont Know"],
+        // enum: ["Yes", "No", "Dont Know"],
       },
     },
     profileCompleted: {

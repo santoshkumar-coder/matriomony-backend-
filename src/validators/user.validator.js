@@ -68,7 +68,6 @@ const createUserSchema = Joi.object({
 
   password: Joi.string().min(6).allow("", null),
 
-  role: Joi.string().valid("user", "admin"),
 
   profileFor: Joi.string().valid(
     "Self",

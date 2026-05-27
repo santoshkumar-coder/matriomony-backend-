@@ -12,9 +12,9 @@ const parseJsonFields = (req, res, next) => {
         try {
           req.body[key] = JSON.parse(value);
         } catch (err) {
-          return res.status(400).json({ 
-            success: false, 
-            message: `Invalid JSON format in field: ${key}` 
+          return res.status(400).json({
+            success: false,
+            message: `Invalid JSON format in field: ${key}`
           });
         }
       }

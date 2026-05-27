@@ -1,6 +1,7 @@
 const AppError = require("../utils/AppError");
 
 const validate = (schema) => (req, res, next) => {
+  console.log(req.body)
   const { error, value } = schema.validate(req.body, {
     abortEarly: false,
     allowUnknown: true,
