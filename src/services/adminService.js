@@ -29,6 +29,7 @@ class AdminService {
 
     if (status) query.moderationStatus = status;
     if (gender) query.gender = gender;
+    console.log("Query Filters:", query);
 
     const users = await User.find(query)
       .sort({ createdAt: -1 })
@@ -37,7 +38,7 @@ class AdminService {
 
     const total = await User.countDocuments(query);
 
-    return { users, total, page, totalPages: Math.ceil(total / limit) };
+    return { total, page, totalPages: Math.ceil(total / limit), users  };
   }
 
 

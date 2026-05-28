@@ -12,9 +12,9 @@ const parseJsonFields = (req, res, next) => {
         try {
           req.body[key] = JSON.parse(value);
         } catch (err) {
-          return res.status(400).json({ 
-            success: false, 
-            message: `Invalid JSON format in field: ${key}` 
+          return res.status(400).json({
+            success: false,
+            message: `Invalid JSON format in field: ${key}`
           });
         }
       }
@@ -30,5 +30,6 @@ router.get('/filtered-users', userController.getFilteredUsers);
 router.get('/getModerateStatus/:id', userController.getMyModerationStatus);
 router.put('/update-user/:id', upload.array('images', 5), parseJsonFields, userController.updateUser);
 router.post('/login', userController.loginUser);
+router.get('/pre-boarding-options', userController.getPreBoardingOptions);
 
 module.exports = router;
