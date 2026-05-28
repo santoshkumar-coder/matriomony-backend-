@@ -137,7 +137,7 @@ exports.moderateProfile = async (req, res) => {
 };
 
 exports.getBlockedRelations = async (req, res) => {
-  try {
+  try {P
     const userwithBlocks = await User.find({
       blockedProfiles: { $exists: true, $not: { $size: 0 } },
     })
