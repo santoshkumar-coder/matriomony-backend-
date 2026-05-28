@@ -1,115 +1,256 @@
 const asyncHandler = require("../utils/asyncHandler");
-const { createUserService, getAllUsersService, getUserByIdService, getModerationStatusService, updateUserService, getUserDashboardStatistics, fetchFilteredUsersService,preOnboardingOptionsServie } = require("../services/userService");
+
+const {
+  createUserService,
+  getAllUsersService,
+  getUserByIdService,
+  getModerationStatusService,
+  updateUserService,
+  fetchFilteredUsersService,
+  preOnboardingOptionsServie,
+  loginUserService,
+} = require("../services/userService");
+
 const cleanBody = require("../utils/cleanBody");
-
-
-
+const bcrypt = require("bcrypt");
+const User = require("../models/userModel");
 
 const userController = {
-    createUser: asyncHandler(async (req, res) => {
-        req.body = cleanBody(req.body);
+  createUser: asyncHandler(async (req, res) => {
+    req.body = cleanBody(req.body);
 
-        if (req.files && req.files.length > 0) {
-            req.body.photos = req.files.map((file, index) => ({
-                url: `/uploads/${file.filename}`,
-                isPrimary: index === 0,
-            }));
-        }
+    if (req.files && req.files.length > 0) {
+      req.body.photos = req.files.map((file, index) => ({
+        url: `/uploads/${file.filename}`,
+        isPrimary: index === 0,
+      }));
+    }
 
-        const user = await createUserService(req.body);
+    const user = await createUserService(req.body);
 
-        res.status(201).json({
-            success: true,
-            message: "User created successfully",
-            data: user,
-        });
-    }),
+    res.status(201).json({
+      success: true,
+      message: "User created successfully",
+      data: user,
+    });
+  }),
 
-    loginUser: asyncHandler(async (req, res) => {
-        const { user, token } = await loginUserService(req.body);
+  loginUser: asyncHandler(async (req, res) => {
+    const { user, token } = await loginUserService(req.body);
 
-        res.status(200).json({
-            success: true,
-            message: "Login successful",
-            token,
-            data: user,
-        });
-    }),
+    res.status(200).json({
+      success: true,
+      message: "Login successful",
+      token,
+      data: user,
+    });
+  }),
 
-    getAllUsers: asyncHandler(async (req, res) => {
-        const result = await getAllUsersService();
+  getAllUsers: asyncHandler(async (req, res) => {
+    const result = await getAllUsersService();
 
-        res.status(200).json({
-            success: true,
-            message: "Users retrieved successfully",
-            totalUsers: result.totalUsers,
-            data: result.users,
-        });
-    }),
+    res.status(200).json({
+      success: true,
+      message: "Users retrieved successfully",
+      totalUsers: result.totalUsers,
+      data: result.users,
+    });
+  }),
 
+  getFilteredUsers: asyncHandler(async (req, res) => {
+    const users = await fetchFilteredUsersService(req.query);
 
+    res.status(200).json({
+      success: true,
+      message: "Profiles filtered successfully",
+      count: users.length,
+      data: users,
+    });
+  }),
 
-    getFilteredUsers: asyncHandler(async (req, res) => {
-        const users = await fetchFilteredUsersService(req.query);
+  getUserById: asyncHandler(async (req, res) => {
+    const user = await getUserByIdService(req.params.id);
 
-        res.status(200).json({
-            success: true,
-            message: "Profiles filtered successfully",
-            count: users.length,
-            data: users,
-        });
-    }),
+    res.status(200).json({
+      success: true,
+      message: "User retrieved successfully",
+      data: user,
+    });
+  }),
 
-    getUserById: asyncHandler(async (req, res) => {
-        const user = await getUserByIdService(req.params.id);
+  getMyModerationStatus: asyncHandler(async (req, res) => {
+    const { id } = req.params;
 
-        res.status(200).json({
-            success: true,
-            message: "User retrieved successfully",
-            data: user,
-        });
-    }),
+    const statusData = await getModerationStatusService(id);
 
+    res.status(200).json({
+      success: true,
+      data: {
+        moderationStatus: statusData.moderationStatus,
+        reason: statusData.reportReason || "",
+      },
+    });
+  }),
 
-    getMyModerationStatus: asyncHandler(async (req, res) => {
-        const { id } = req.params;
+  updateUser: asyncHandler(async (req, res) => {
+    req.body = cleanBody(req.body);
 
-        const statusData = await getModerationStatusService(id);
+    if (req.files && req.files.length > 0) {
+      req.body.photos = req.files.map((file, index) => ({
+        url: `/uploads/${file.filename}`,
+        isPrimary: index === 0,
+      }));
+    }
 
-        res.status(200).json({
-            success: true,
-            data: {
-                moderationStatus: statusData.moderationStatus,
-                reason: statusData.reportReason || ""
-            },
-        });
-    }),
+    const updatedUser = await updateUserService(
+      req.params.id,
+      req.body
+    );
 
-    updateUser: asyncHandler(async (req, res) => {
-        req.body = cleanBody(req.body);
+    res.status(200).json({
+      success: true,
+      message: "User updated successfully",
+      data: updatedUser,
+    });
+  }),
 
-        if (req.files && req.files.length > 0) {
-            req.body.photos = req.files.map((file, index) => ({
-                url: `/uploads/${file.filename}`,
-                isPrimary: index === 0,
-            }));
-        }
+  getPreBoardingOptions: asyncHandler(async (req, res) => {
+    const data = await preOnboardingOptionsServie();
 
-        const updatedUser = await updateUserService(req.params.id, req.body);
+    res.status(200).json({
+      data,
+    });
+  }),
 
-        res.status(200).json({
-            success: true,
-            message: "User updated successfully",
-            data: updatedUser,
-        });
-    }),
+  changePassword: asyncHandler(async (req, res) => {
+    const { id } = req.params;
+    const { oldPassword, newPassword } = req.body;
 
-    getPreBoardingOptions: asyncHandler(async (req, res) => {
-       const data = await preOnboardingOptionsServie();
-        res.status(200).json({
-            data
-        })
-    })
+    if (!oldPassword || !newPassword) {
+      return res.status(400).json({
+        success: false,
+        message: "Old password and new password are required",
+      });
+    }
+
+    const user = await User.findById(id).select("+password");
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    const isMatch = await bcrypt.compare(
+      oldPassword,
+      user.password
+    );
+
+    if (!isMatch) {
+      return res.status(400).json({
+        success: false,
+        message: "Incorrect old password",
+      });
+    }
+
+    const salt = await bcrypt.genSalt(10);
+
+    user.password = await bcrypt.hash(newPassword, salt);
+
+    await user.save();
+
+    res.status(200).json({
+      success: true,
+      message: "Password changed successfully",
+    });
+  }),
+
+  blockUser: asyncHandler(async (req, res) => {
+    const { id } = req.params;
+    const { targetUserId } = req.body;
+
+    if (id === targetUserId) {
+      return res.status(400).json({
+        success: false,
+        message: "You cannot block yourself",
+      });
+    }
+
+    const user = await User.findById(id);
+
+    const targetUser = await User.findById(targetUserId);
+
+    if (!user || !targetUser) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    if (user.blockedProfiles.includes(targetUserId)) {
+      return res.status(400).json({
+        success: false,
+        message: "Profile is already blocked",
+      });
+    }
+
+    user.blockedProfiles.push(targetUserId);
+
+    await user.save();
+
+    res.status(200).json({
+      success: true,
+      message: "Profile blocked successfully",
+    });
+  }),
+
+  unblockUser: asyncHandler(async (req, res) => {
+    const { id } = req.params;
+    const { targetUserId } = req.body;
+
+    const user = await User.findById(id);
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    user.blockedProfiles = user.blockedProfiles.filter(
+      (blockedId) =>
+        blockedId.toString() !== targetUserId
+    );
+
+    await user.save();
+
+    res.status(200).json({
+      success: true,
+      message: "Profile unblocked successfully",
+    });
+  }),
+
+  getBlockedUsers: asyncHandler(async (req, res) => {
+    const { id } = req.params;
+
+    const user = await User.findById(id).populate(
+      "blockedProfiles",
+      "fullName gender photos"
+    );
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      data: user.blockedProfiles,
+    });
+  }),
 };
 
 module.exports = userController;

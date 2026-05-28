@@ -1,5 +1,10 @@
 const adminService = require("../services/adminService");
-const { getUserDashboardStatistics , getAllUsersServiceForAdmin} = require("../services/userService");
+const {
+  getUserDashboardStatistics,
+  getAllUsersServiceForAdmin,
+} = require("../services/userService");
+const User = require("../models/userModel");
+
 exports.register = async (req, res) => {
   try {
     const admin = await adminService.registerAdmin(req.body);
@@ -17,7 +22,9 @@ exports.login = async (req, res) => {
   try {
     const { email, password } = req.body;
     if (!email || !password) {
-      return res.status(400).json({ message: "Email and password are required" });
+      return res
+        .status(400)
+        .json({ message: "Email and password are required" });
     }
 
     const result = await adminService.loginAdmin(email, password);
@@ -31,7 +38,6 @@ exports.login = async (req, res) => {
   }
 };
 
-
 exports.getStats = async (req, res) => {
   try {
     const stats = await getUserDashboardStatistics();
@@ -42,7 +48,6 @@ exports.getStats = async (req, res) => {
       data: stats,
     });
   } catch (error) {
-    // Error handling
     return res.status(500).json({
       success: false,
       message: "Internal Server Error",
@@ -61,8 +66,8 @@ exports.getAllUsersForAdmin = async (req, res) => {
     return res.status(200).json({
       success: true,
       message: "Users fetched successfully",
-       totalUsers: result.totalUsersCount,
-     showingCount: result.users.length,
+      totalUsers: result.totalUsersCount,
+      showingCount: result.users.length,
       data: result.users,
       pagination: result.pagination,
     });
@@ -99,18 +104,21 @@ exports.moderateProfile = async (req, res) => {
     const { status } = req.body;
 
     if (!["Approved", "Rejected", "Pending"].includes(status)) {
-      return res.status(400).json({ 
-        success: false, 
-        message: "Invalid status. Use Approved, Rejected or Pending." 
+      return res.status(400).json({
+        success: false,
+        message: "Invalid status. Use Approved, Rejected or Pending.",
       });
     }
 
-    const updatedUser = await adminService.updateModerationStatus(userId, status);
+    const updatedUser = await adminService.updateModerationStatus(
+      userId,
+      status,
+    );
 
     if (!updatedUser) {
-      return res.status(404).json({ 
-        success: false, 
-        message: "User not found" 
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
       });
     }
 
@@ -123,6 +131,28 @@ exports.moderateProfile = async (req, res) => {
     res.status(500).json({
       success: false,
       message: "Error updating profile status",
+      error: error.message,
+    });
+  }
+};
+
+exports.getBlockedRelations = async (req, res) => {
+  try {
+    const userwithBlocks = await User.find({
+      blockedProfiles: { $exists: true, $not: { $size: 0 } },
+    })
+      .select("fullName gender photos blockedProfiles")
+      .populate("blockedProfiles", "fullName gender photos");
+
+    return res.status(200).json({
+      success: true,
+      message: "Blocked relations retrieved successfully",
+      data: userwithBlocks,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: "Error retrieving blocked relations",
       error: error.message,
     });
   }
