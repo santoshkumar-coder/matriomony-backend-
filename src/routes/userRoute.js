@@ -1,8 +1,10 @@
 const router = require('express').Router();
 const userController = require('../controllers/userController');
+const adminController = require('../controllers/adminController');
 const validate = require('../middlewares/validate');
 const { createUserSchema } = require('../validators/user.validator');
 const upload = require('../config/multer');
+const { authMiddleware,verifyAdmin  } = require('../middlewares/authMiddleware');
 
 const parseJsonFields = (req, res, next) => {
   for (const key in req.body) {
@@ -24,12 +26,20 @@ const parseJsonFields = (req, res, next) => {
 };
 
 router.post('/create', upload.array('images', 5), parseJsonFields, validate(createUserSchema), userController.createUser);
-router.get('/get-all-users', userController.getAllUsers);
-router.get('/get-user/:id', userController.getUserById);
-router.get('/filtered-users', userController.getFilteredUsers);
-router.get('/getModerateStatus/:id', userController.getMyModerationStatus);
-router.put('/update-user/:id', upload.array('images', 5), parseJsonFields, userController.updateUser);
 router.post('/login', userController.loginUser);
 router.get('/pre-boarding-options', userController.getPreBoardingOptions);
+
+router.get('/get-all-users', authMiddleware, userController.getAllUsers);
+router.get('/get-user/:id', authMiddleware, userController.getUserById);
+router.get('/filtered-users', authMiddleware, userController.getFilteredUsers);
+router.get('/getModerateStatus/:id', authMiddleware, userController.getMyModerationStatus);
+router.put('/update-user/:id', authMiddleware, upload.array('images', 5), parseJsonFields, userController.updateUser);
+
+router.put('/change-password/:id', authMiddleware, userController.changePassword);
+router.post('/block/:id', authMiddleware, userController.blockUser);
+router.post('/unblock/:id', authMiddleware, userController.unblockUser);
+router.get('/blocked-users/:id', authMiddleware, userController.getBlockedUsers);
+
+
 
 module.exports = router;

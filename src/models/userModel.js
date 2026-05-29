@@ -9,13 +9,13 @@ const userSchema = new mongoose.Schema(
     },
     country: {
       type: String,
-      default: "India"
-    }, 
+      default: "India",
+    },
     state: String,
     city: String,
     citizenship: {
       type: String,
-      default: "Indian"
+      default: "Indian",
     },
     email: {
       type: String,
@@ -58,13 +58,13 @@ const userSchema = new mongoose.Schema(
     religion: {
       type: String,
       // enum: ["Hindu", "Muslim", "Christian", "Sikh", "Jain", "Buddhist", "Parsi", "Jewish", "Other"],
-      default: "Hindu"
+      default: "Hindu",
     },
 
     motherTongue: {
       type: String,
       // enum: ["Hindi", "English", "Bengali", "Telugu", "Marathi", "Tamil", "Gujarati", "Urdu", "Kannada", "Odia", "Malayalam", "Punjabi", "Assamese", "Maithili", "Other"],
-      default: "Hindi"
+      default: "Hindi",
     },
 
     maritalStatus: {
@@ -100,11 +100,22 @@ const userSchema = new mongoose.Schema(
       //   'Engineer', 'Doctor', 'Teacher', 'Business', 'Artist', 'Other', 'Student'
       // ]
     },
-
+    isHidden: {
+      type: Boolean,
+      default: false,
+    },
+    deactivatedUntil: {
+      type: Date,
+      default: null,
+    },
+    hiddenUntil: {
+      type: Date,
+      default: null,
+    },
     annualIncome: String,
     incomeValue: {
       type: Number,
-      index: true
+      index: true,
     },
     familyStatus: {
       type: String,
@@ -238,8 +249,8 @@ const userSchema = new mongoose.Schema(
     ],
     subscriptionTier: {
       type: String,
-      enum: ['FREE', 'GOLD', 'PREMIUM', 'ELITE'],
-      default: 'FREE'
+      enum: ["FREE", "GOLD", "PREMIUM", "ELITE"],
+      default: "FREE",
     },
     isReported: {
       type: Boolean,
@@ -252,13 +263,13 @@ const userSchema = new mongoose.Schema(
     },
     reportReason: {
       type: String,
-      default: ""
+      default: "",
     },
     lastSeen: Date,
   },
   {
     timestamps: true,
-  }
+  },
 );
 
 userSchema.index({ religion: 1 });

@@ -1,18 +1,14 @@
-const express = require("express");
-const { register, login, getStats, getAllUsersForAdmin, getProfiles, moderateProfile } = require("../controllers/adminController");
-const { verifyAdmin } = require("../middlewares/authMiddleware");
-const router = express.Router();
+const router = require('express').Router();
+const adminController = require('../controllers/adminController');
+const { verifyAdmin } = require('../middlewares/authMiddleware');
 
-router.post("/register", register);
+router.post('/register', adminController.register);
+router.post('/login', adminController.login);
 
-router.post("/login", login)
+router.get('/stats', verifyAdmin, adminController.getStats);
+router.get('/all-users', verifyAdmin, adminController.getAllUsersForAdmin);
+router.get('/profiles', verifyAdmin, adminController.getProfiles);
+router.put('/moderate/:userId', verifyAdmin, adminController.moderateProfile);
+router.get('/block-relations', verifyAdmin, adminController.getBlockedRelations);
 
-router.get("/user-stats", verifyAdmin,getStats);
-
-
-router.get("/profiles", verifyAdmin, getProfiles);
-
-router.patch("/profiles-update/:userId/status", verifyAdmin, moderateProfile)
-
-router.get("/get-all-users", verifyAdmin, getAllUsersForAdmin);
 module.exports = router;
