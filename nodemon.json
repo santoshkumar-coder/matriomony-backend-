@@ -1,0 +1,6 @@
+{
+    "watch": ["src/", "routes/", "controllers/", "models/"],
+    "ext": "js,json",
+    "ignore": ["kafka/", "config/", "*.log"],
+    "delay": "1000"
+  }

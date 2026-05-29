@@ -11,7 +11,7 @@ const connectConsumer = async () => {
 
   // Subscribe to all relevant topics
   await consumer.subscribe({
-    topics: [TOPICS.USER_CREATED, TOPICS.GET_ALL_USERS],
+    topics: [TOPICS.USER_CREATED, TOPICS.GET_ALL_USERS, TOPICS.MATCH_DAILY_BATCH_READY],
     fromBeginning: false,
   });
 
@@ -44,12 +44,22 @@ const connectConsumer = async () => {
         case TOPICS.GET_ALL_USERS:
           await handleGetAllUsers(payload);
           break;
+        case TOPICS.MATCH_DAILY_BATCH_READY:
+          await handledailyMatches(payload);
+          break;
       }
     },
   });
 };
 
+const handledailyMatches = async (payload) => {
+  console.log("daily batch ready, run matching algorithm")
+}
 
+const handleUserCreated = async (payload) => {
+  console.log('New user created:', payload);
+  // Here you could do additional processing if needed, e.g. update a cache, trigger other actions, etc.
+}
 
 
 const handleGetAllUsers = async (payload) => {

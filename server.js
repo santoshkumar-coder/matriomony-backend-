@@ -75,19 +75,23 @@ app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 // sendEvent().catch(err => console.error('Error sending event:', err));
 // sendEvent()
 const start = async () => {
-  await connectDB();
+
 
   try {
     await connectProducer();
     await connectConsumer();
+
   } catch (err) {
     console.error('⚠️  Kafka unavailable, continuing without it:', err.message);
   }
 
-  app.listen(PORT, '0.0.0.0',() => {
+  await connectDB();
+  app.listen(PORT, '0.0.0.0', () => {
     console.log('------------------------------');
     console.log(`|| Service running on ${PORT} ||`);
     console.log('------------------------------');
+
+
   });
 };
 start();

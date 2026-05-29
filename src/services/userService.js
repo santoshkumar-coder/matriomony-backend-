@@ -2,6 +2,9 @@ const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 const User = require("../models/userModel");
 const AppError = require("../utils/AppError");
+const { publishMessage } = require('../kafka/producer');
+const { sendEvent } = require('../config/kafka');
+const TOPICS = require('../kafka/topics');
 
 const createUserService = async (data) => {
   const existingUser = await User.findOne({
@@ -22,6 +25,21 @@ const createUserService = async (data) => {
   data.password = hashedPassword;
 
   const user = await User.create(data);
+  // sendEvent('user-created', {
+  //   _id: user._id,
+  //   name: user.fullName,
+  //   email: user.email,
+  //   phone: user.phone,
+  //   createdAt: user.createdAt,
+  // })
+
+  await publishMessage(TOPICS.USER_CREATED, {
+    _id: user._id,
+    name: user.fullName,
+    email: user.email,
+    phone: user.phone,
+    createdAt: user.createdAt,
+  });
   return user;
 };
 
