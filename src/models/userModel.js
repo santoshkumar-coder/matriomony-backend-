@@ -34,15 +34,6 @@ const userSchema = new mongoose.Schema(
     },
     profileFor: {
       type: String,
-      // enum: [
-      //   "Self",
-      //   "Son",
-      //   "Daughter",
-      //   "Brother",
-      //   "Sister",
-      //   "Friend",
-      //   "Relative",
-      // ],
     },
     fullName: {
       type: String,
@@ -51,54 +42,28 @@ const userSchema = new mongoose.Schema(
     },
     gender: {
       type: String,
-      // enum: ["Male", "Female", "Other"],
     },
     dob: Date,
-
     religion: {
       type: String,
-      // enum: ["Hindu", "Muslim", "Christian", "Sikh", "Jain", "Buddhist", "Parsi", "Jewish", "Other"],
       default: "Hindu",
     },
-
     motherTongue: {
       type: String,
-      // enum: ["Hindi", "English", "Bengali", "Telugu", "Marathi", "Tamil", "Gujarati", "Urdu", "Kannada", "Odia", "Malayalam", "Punjabi", "Assamese", "Maithili", "Other"],
       default: "Hindi",
     },
-
     maritalStatus: {
       type: String,
-      // enum: [
-      //   "unMarried",
-      //   "Divorced",
-      //   "Widowed",
-      //   "Awaiting Divorce",
-      // ],
     },
-
-    // STEP 2 — EDUCATION & CAREER
     highestQualification: {
       type: String,
-      // enum: ['High school', 'Bachelor', 'Master', 'PHD', 'Other']
     },
-
     college: String,
     workingWith: {
       type: String,
-      // enum: [
-      //   "Private",
-      //   "Government",
-      //   "Business",
-      //   "Self Employed",
-      // ],
     },
-
     profession: {
       type: String,
-      // enum: [
-      //   'Engineer', 'Doctor', 'Teacher', 'Business', 'Artist', 'Other', 'Student'
-      // ]
     },
     isHidden: {
       type: Boolean,
@@ -119,15 +84,12 @@ const userSchema = new mongoose.Schema(
     },
     familyStatus: {
       type: String,
-      // enum: ["Middle Class", "Upper Middle Class", "Rich", "Affluent"],
     },
     familyType: {
       type: String,
-      // enum: ["Joint", "Nuclear"],
     },
     familyValues: {
       type: String,
-      // enum: ["Traditional", "Moderate", "Liberal"],
     },
     fatherOccupation: String,
     motherOccupation: String,
@@ -148,20 +110,15 @@ const userSchema = new mongoose.Schema(
     lifestyle: {
       diet: {
         type: String,
-        // enum: ["Veg", "Non-Veg", "Eggetarian", "Vegan"],
       },
       smoking: {
         type: String,
-        // enum: ["Never", "No", "Occasionally", "Regularly"],
       },
       drinking: {
         type: String,
-        // enum: ["Never", "No", "Occasionally", "Regularly"],
       },
-
       interests: {
         type: [String],
-        // enum: ['Cooking', 'Reading', 'Traveling', 'Sports', 'Music', 'Movies', 'Other']
       },
     },
     photos: [
@@ -198,7 +155,6 @@ const userSchema = new mongoose.Schema(
       gotra: String,
       manglik: {
         type: String,
-        // enum: ["Yes", "No", "Dont Know"],
       },
     },
     profileCompleted: {
@@ -261,6 +217,17 @@ const userSchema = new mongoose.Schema(
       enum: ["Pending", "Approved", "Rejected"],
       default: "Pending",
     },
+    sessions: [
+      {
+        device: String,
+        location: String,
+        lastActive: {
+          type: Date,
+          default: Date.now,
+        },
+        token: String,
+      },
+    ],
     reportReason: {
       type: String,
       default: "",
@@ -269,7 +236,7 @@ const userSchema = new mongoose.Schema(
   },
   {
     timestamps: true,
-  },
+  }
 );
 
 userSchema.index({ religion: 1 });
