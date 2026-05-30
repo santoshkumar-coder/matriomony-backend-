@@ -43,6 +43,37 @@ const userController = {
     console.log('req bdy : ', req.body);
     const { user, token } = await loginUserService(req.body);
 
+    if (user.moderationStatus === "Pending") {
+      return res.status(403).json({
+        success: false,
+        message: "Your profile is under review",
+        moderationStatus: "Pending",
+      });
+    }
+
+    if (user.moderationStatus === "Rejected") {
+      return res.status(403).json({
+        success: false,
+        message: "Your profile has been rejected by the admin",
+        moderationStatus: "Rejected",
+      });
+    }
+
+    const userDoc = await User.findById(user._id);
+    if (userDoc) {
+      const device = req.body.device || "Unknown Device";
+      const location = req.body.location || "Unknown Location";
+
+      userDoc.sessions.push({
+        device,
+        location,
+        lastActive: new Date(),
+        token,
+      });
+
+      await userDoc.save();
+    }
+
     res.status(200).json({
       success: true,
       message: "Login successful",
@@ -211,10 +242,7 @@ const userController = {
       }));
     }
 
-    const updatedUser = await updateUserService(
-      req.params.id,
-      req.body
-    );
+    const updatedUser = await updateUserService(req.params.id, req.body);
 
     res.status(200).json({
       success: true,
@@ -251,10 +279,7 @@ const userController = {
       });
     }
 
-    const isMatch = await bcrypt.compare(
-      oldPassword,
-      user.password
-    );
+    const isMatch = await bcrypt.compare(oldPassword, user.password);
 
     if (!isMatch) {
       return res.status(400).json({
@@ -287,7 +312,6 @@ const userController = {
     }
 
     const user = await User.findById(id);
-
     const targetUser = await User.findById(targetUserId);
 
     if (!user || !targetUser) {
@@ -328,8 +352,7 @@ const userController = {
     }
 
     user.blockedProfiles = user.blockedProfiles.filter(
-      (blockedId) =>
-        blockedId.toString() !== targetUserId
+      (blockedId) => blockedId.toString() !== targetUserId
     );
 
     await user.save();
@@ -358,6 +381,196 @@ const userController = {
     res.status(200).json({
       success: true,
       data: user.blockedProfiles,
+    });
+  }),
+
+  deactivateAccount: asyncHandler(async (req, res) => {
+    const { id } = req.params;
+    const { duration } = req.body;
+
+    const user = await User.findById(id);
+
+    if (!user) {
+      return res.status(400).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    user.isActive = false;
+
+    if (duration === "2_DAYS") {
+      user.deactivatedUntil = new Date(
+        Date.now() + 2 * 24 * 60 * 60 * 1000
+      );
+    } else if (duration === "7_DAYS") {
+      user.deactivatedUntil = new Date(
+        Date.now() + 7 * 24 * 60 * 60 * 1000
+      );
+    } else {
+      user.deactivatedUntil = null;
+    }
+
+    await user.save();
+
+    res.status(200).json({
+      success: true,
+      message: "Account deactivated successfully",
+      data: {
+        isActive: user.isActive,
+        deactivatedUntil: user.deactivatedUntil,
+      },
+    });
+  }),
+
+  activateAccount: asyncHandler(async (req, res) => {
+    const { id } = req.params;
+
+    const user = await User.findById(id);
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    user.isActive = true;
+    user.deactivatedUntil = null;
+
+    await user.save();
+
+    res.status(200).json({
+      success: true,
+      message: "Account activated successfully",
+      data: {
+        isActive: user.isActive,
+      },
+    });
+  }),
+
+  hideProfile: asyncHandler(async (req, res) => {
+    const { id } = req.params;
+    const { duration } = req.body;
+
+    const user = await User.findById(id);
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    user.isHidden = true;
+
+    if (duration === "2_DAYS") {
+      user.hiddenUntil = new Date(
+        Date.now() + 2 * 24 * 60 * 60 * 1000
+      );
+    } else if (duration === "7_DAYS") {
+      user.hiddenUntil = new Date(
+        Date.now() + 7 * 24 * 60 * 60 * 1000
+      );
+    } else {
+      user.hiddenUntil = null;
+    }
+
+    await user.save();
+
+    res.status(200).json({
+      success: true,
+      message: "Profile hidden successfully",
+      data: {
+        isHidden: user.isHidden,
+        hiddenUntil: user.hiddenUntil,
+      },
+    });
+  }),
+
+  unhideProfile: asyncHandler(async (req, res) => {
+    const { id } = req.params;
+
+    const user = await User.findById(id);
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    user.isHidden = false;
+    user.hiddenUntil = null;
+
+    await user.save();
+
+    res.status(200).json({
+      success: true,
+      message: "Profile unhidden successfully",
+      data: {
+        isHidden: user.isHidden,
+      },
+    });
+  }),
+
+  deleteAccount: asyncHandler(async (req, res) => {
+    const { id } = req.params;
+
+    const user = await User.findByIdAndDelete(id);
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Account deleted successfully",
+    });
+  }),
+
+  getActiveSessions: asyncHandler(async (req, res) => {
+    const { id } = req.params;
+    const user = await User.findById(id).select("sessions");
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      data: user.sessions,
+    });
+  }),
+
+  terminateSession: asyncHandler(async (req, res) => {
+    const { id } = req.params;
+    const { sessionId } = req.body;
+
+    const user = await User.findById(id);
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    user.sessions = user.sessions.filter(
+      (session) => session._id.toString() !== sessionId
+    );
+
+    await user.save();
+
+    res.status(200).json({
+      success: true,
+      message: "Session terminated successfully",
     });
   }),
 };
