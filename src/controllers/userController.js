@@ -34,8 +34,24 @@ const userController = {
     });
   }),
 
-loginUser: asyncHandler(async (req, res) => {
+  loginUser: asyncHandler(async (req, res) => {
     const { user, token } = await loginUserService(req.body);
+
+    if (user.moderationStatus === "Pending") {
+      return res.status(403).json({
+        success: false,
+        message: "Your profile is under review",
+        moderationStatus: "Pending",
+      });
+    }
+
+    if (user.moderationStatus === "Rejected") {
+      return res.status(403).json({
+        success: false,
+        message: "Your profile has been rejected by the admin",
+        moderationStatus: "Rejected",
+      });
+    }
 
     const userDoc = await User.findById(user._id);
     if (userDoc) {
@@ -406,7 +422,7 @@ loginUser: asyncHandler(async (req, res) => {
     });
   }),
 
-getActiveSessions: asyncHandler(async (req, res) => {
+  getActiveSessions: asyncHandler(async (req, res) => {
     const { id } = req.params;
     const user = await User.findById(id).select("sessions");
 
@@ -447,10 +463,6 @@ getActiveSessions: asyncHandler(async (req, res) => {
       message: "Session terminated successfully",
     });
   }),
-
-}
-
-
+};
 
 module.exports = userController;
-

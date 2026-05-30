@@ -98,6 +98,40 @@ exports.getProfiles = async (req, res) => {
   }
 };
 
+exports.getPendingProfiles = async (req, res) => {
+  try {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
+
+    const pendingUsers = await User.find({ moderationStatus: "Pending" })
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit)
+      .select("fullName email phone gender photos createdAt");
+
+    const total = await User.countDocuments({ moderationStatus: "Pending" });
+
+    return res.status(200).json({
+      success: true,
+      message: "Pending profiles retrieved successfully",
+      total,
+      data: pendingUsers,
+      pagination: {
+        currentPage: page,
+        totalPages: Math.ceil(total / limit),
+        limit,
+      },
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: "Error fetching pending profiles",
+      error: error.message,
+    });
+  }
+};
+
 exports.moderateProfile = async (req, res) => {
   try {
     const { userId } = req.params;
@@ -112,7 +146,7 @@ exports.moderateProfile = async (req, res) => {
 
     const updatedUser = await adminService.updateModerationStatus(
       userId,
-      status,
+      status
     );
 
     if (!updatedUser) {
@@ -137,7 +171,7 @@ exports.moderateProfile = async (req, res) => {
 };
 
 exports.getBlockedRelations = async (req, res) => {
-  try {P
+  try {
     const userwithBlocks = await User.find({
       blockedProfiles: { $exists: true, $not: { $size: 0 } },
     })

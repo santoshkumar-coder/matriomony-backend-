@@ -25,7 +25,7 @@ const parseJsonFields = (req, res, next) => {
   next();
 };
 
-router.post('/create', upload.array('images', 5), parseJsonFields, validate(createUserSchema), userController.createUser);
+router.post('/create', upload.array('photos', 5), parseJsonFields, validate(createUserSchema), userController.createUser);
 router.post('/login', userController.loginUser);
 router.get('/pre-boarding-options', userController.getPreBoardingOptions);
 
@@ -33,19 +33,18 @@ router.get('/get-all-users', authMiddleware, userController.getAllUsers);
 router.get('/get-user/:id', authMiddleware, userController.getUserById);
 router.get('/filtered-users', authMiddleware, userController.getFilteredUsers);
 router.get('/getModerateStatus/:id', authMiddleware, userController.getMyModerationStatus);
-router.put('/update-user/:id', authMiddleware, upload.array('images', 5), parseJsonFields, userController.updateUser);
+router.put('/update-user/:id', authMiddleware, upload.array('photos', 5), parseJsonFields, userController.updateUser);
 
 router.put('/change-password/:id', authMiddleware, userController.changePassword);
 router.post('/block/:id', authMiddleware, userController.blockUser);
 router.post('/unblock/:id', authMiddleware, userController.unblockUser);
 router.get('/blocked-users/:id', authMiddleware, userController.getBlockedUsers);
 
-router.put('/deactivate/:id', authMiddleware, verifyAdmin,userController.deactivateAccount);
-router.put('/activate/:id', authMiddleware,verifyAdmin ,userController.activateAccount);
+router.put('/deactivate/:id', authMiddleware, verifyAdmin, userController.deactivateAccount);
+router.put('/activate/:id', authMiddleware, verifyAdmin, userController.activateAccount);
 router.put('/hide/:id', authMiddleware, userController.hideProfile);
 router.put('/unhide/:id', authMiddleware, userController.unhideProfile);
-router.delete('/delete/:id', authMiddleware,verifyAdmin ,userController.deleteAccount);
-
+router.delete('/delete/:id', authMiddleware, verifyAdmin, userController.deleteAccount);
 
 router.get('/sessions/:id', authMiddleware, userController.getActiveSessions);
 router.post('/sessions/terminate/:id', authMiddleware, userController.terminateSession);
