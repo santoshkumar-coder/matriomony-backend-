@@ -1,5 +1,5 @@
 const asyncHandler = require("../utils/asyncHandler");
-
+const mongoose = require("mongoose");
 const {
   createUserService,
   getAllUsersService,
@@ -14,6 +14,8 @@ const {
 const cleanBody = require("../utils/cleanBody");
 const bcrypt = require("bcrypt");
 const User = require("../models/userModel");
+// const Matche = require("../models/matchModel") ;
+const Match = require('../models/matchModel');
 
 const userController = {
   createUser: asyncHandler(async (req, res) => {
@@ -28,6 +30,8 @@ const userController = {
 
     const user = await createUserService(req.body);
 
+
+
     res.status(201).json({
       success: true,
       message: "User created successfully",
@@ -36,6 +40,7 @@ const userController = {
   }),
 
   loginUser: asyncHandler(async (req, res) => {
+    console.log('req bdy : ', req.body);
     const { user, token } = await loginUserService(req.body);
 
     res.status(200).json({
@@ -57,6 +62,110 @@ const userController = {
     });
   }),
 
+  // getUserMatches: asyncHandler(async (req, res) => {
+  //   const userId = req.user.id;
+  //   const user = await User.findById(userId);
+  //   if (!user) {
+  //     return res.status(404).json({
+  //       success: false,
+  //       message: "User not found",
+  //     });
+  //   }
+  //   const userIdStr = userId.toString().trim();  // ✅ convert to plain string
+  //   console.log('user id:', userIdStr);
+  //   console.log('type:', typeof userIdStr); // should log "string"
+
+  //   const userMatches = await Match.find({
+  //     userId: { $regex: userIdStr, $options: 'i' }
+  //   }); // ✅ string match
+  //   console.log('DB name:', mongoose.connection.db.databaseName); // 👈 add this
+  //   console.log('matches found:', userMatches.length);
+
+  //   // also sanity check total docs in collection
+  //   const total = await Match.countDocuments();
+  //   console.log('total docs in matches collection:', total);
+  //   res.status(200).json({
+  //     success: true,
+  //     message: "User matches retrieved successfully",
+  //     count: userMatches.length,
+  //     data: userMatches,
+  //   });
+
+
+  // }),
+  // getUserMatches: asyncHandler(async (req, res) => {
+  //   const userId = req.user.id;
+  //   const user = await User.findById(userId);
+  //   if (!user) {
+  //     return res.status(404).json({
+  //       success: false,
+  //       message: "User not found",
+  //     });
+  //   }
+
+
+
+  //   // 🔍 DEBUG BLOCK
+  //   const allMatches = await Match.find({
+  //     userId: new mongoose.Types.ObjectId(userId) 
+  //   });
+  //   const Matches = await Match.find();
+  //   // const first = allMatches[0];
+  //   // console.log('--- DEBUG ---');
+  //   // console.log('req.user.id:  ', JSON.stringify(userIdStr));
+  //   // console.log('db userId:    ', JSON.stringify(first.userId));
+  //   // console.log('req length:   ', userIdStr.length);
+  //   // console.log('db length:    ', first.userId?.length);
+  //   // console.log('equal?        ', first.userId === userIdStr);
+  //   // console.log('--- END ---');
+  //   console.log(`Matches found for userId ${userId}:`, allMatches);
+
+
+  //   res.status(200).json({
+  //     success: true,
+  //     data: {
+  //       // reqUserId: JSON.stringify(userIdStr),
+  //       // dbUserId: JSON.stringify(first.userId),
+  //       // reqLength: userIdStr.length,
+  //       // dbLength: first.userId?.length,
+  //       // equal: first.userId === userIdStr
+  //       matches: allMatches,
+  //     }
+  //   });
+  // }),
+
+
+  getUserMatches: asyncHandler(async (req, res) => {
+    const userId = req.user.id;
+
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+    console.log('user id:', userId);
+    console.log('type:', typeof userId); // should log "string"
+    const profileMatch = (await Match.find()) // get one match to inspect
+    console.log('sample match userId:', profileMatch);
+    console.log('sample match userId:', profileMatch?.userId);
+
+
+    // ✅ query with ObjectId
+    const userMatches = await Match.find({
+      userId: new mongoose.Types.ObjectId(userId)
+    });
+
+    res.status(200).json({
+      success: true,
+      message: "User matches retrieved successfully",
+      count: userMatches.length,
+      data: userMatches,
+    });
+  }),
+
+
   getFilteredUsers: asyncHandler(async (req, res) => {
     const users = await fetchFilteredUsersService(req.query);
 
@@ -69,7 +178,7 @@ const userController = {
   }),
 
   getUserById: asyncHandler(async (req, res) => {
-    const user = await getUserByIdService(req.params.id);
+    const user = await getUserByIdService(req.user.id);
 
     res.status(200).json({
       success: true,
