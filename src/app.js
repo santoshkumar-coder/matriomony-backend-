@@ -4,6 +4,8 @@ const path = require("path");
 const morgan = require("morgan");
 const globalErrorHandler = require("./middlewares/errorMiddleware");
 const ticketRoutes = require("../src/routes/ticketRoutes");
+const dns = require("node:dns/promises");
+dns.setServers(["8.8.8.8", "1.1.1.1"]);
 
 const app = express();
 
