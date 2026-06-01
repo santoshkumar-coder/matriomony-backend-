@@ -58,3 +58,43 @@ exports.getBanners = async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 };
+
+exports.searchBanners = async (req, res) => {
+    try {
+        const { q, page = 1, limit = 10 } = req.query;
+
+        const pageNumber = parseInt(page, 10) || 1;
+        const limitNumber = parseInt(limit, 10) || 10;
+        const skip = (pageNumber - 1) * limitNumber;
+
+        let query = {};
+        if (q) {
+            query = {
+                $or: [
+                    { title: { $regex: q, $options: 'i' } },
+                    { description: { $regex: q, $options: 'i' } },
+                    { position: { $regex: q, $options: 'i' } }
+                ]
+            };
+        }
+
+        const totalItems = await Banner.countDocuments(query);
+        const banners = await Banner.find(query)
+            .sort({ createdAt: -1 })
+            .skip(skip)
+            .limit(limitNumber);
+
+        res.status(200).json({
+            success: true,
+            pagination: {
+                totalItems,
+                totalPages: Math.ceil(totalItems / limitNumber),
+                currentPage: pageNumber,
+                limit: limitNumber
+            },
+            banners
+        });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
