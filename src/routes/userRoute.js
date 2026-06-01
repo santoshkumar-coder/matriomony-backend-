@@ -34,7 +34,7 @@ router.get('/get-all-users', authMiddleware, userController.getAllUsers);
 router.get('/get-user', authMiddleware, userController.getUserById);
 router.get('/filtered-users', authMiddleware, userController.getFilteredUsers);
 router.get('/getModerateStatus/:id', authMiddleware, userController.getMyModerationStatus);
-router.put('/update-user/:id', authMiddleware, upload.array('photos', 5), parseJsonFields, userController.updateUser);
+router.put('/update-user', authMiddleware, upload.array('photos', 5), parseJsonFields, userController.updateUser);
 
 router.put('/change-password/:id', authMiddleware, userController.changePassword);
 router.post('/block/:id', authMiddleware, userController.blockUser);
