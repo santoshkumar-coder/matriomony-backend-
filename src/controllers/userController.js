@@ -463,6 +463,68 @@ const userController = {
       message: "Session terminated successfully",
     });
   }),
+
+  searchUsersAdmin: asyncHandler(async (req, res) => {
+    const { q, page = 1, limit = 10 } = req.query;
+    const pageNumber = parseInt(page, 10) || 1;
+    const limitNumber = parseInt(limit, 10) || 10;
+    const skip = (pageNumber - 1) * limitNumber;
+
+    let query = {};
+    if (q) {
+      query = {
+        $or: [
+          { fullName: { $regex: q, $options: "i" } },
+          { email: { $regex: q, $options: "i" } }
+        ]
+      };
+    }
+
+    const totalItems = await User.countDocuments(query);
+    const users = await User.find(query)
+      .select("fullName email gender photos isActive moderationStatus")
+      .skip(skip)
+      .limit(limitNumber);
+
+    res.status(200).json({
+      success: true,
+      pagination: {
+        totalItems,
+        totalPages: Math.ceil(totalItems / limitNumber),
+        currentPage: pageNumber,
+        limit: limitNumber
+      },
+      data: users
+    });
+  }),
+
+  searchBlockedUsers: asyncHandler(async (req, res) => {
+    const { id } = req.params;
+    const { q } = req.query;
+
+    let matchCriteria = {};
+    if (q) {
+      matchCriteria = { fullName: { $regex: q, $options: "i" } };
+    }
+
+    const user = await User.findById(id).populate({
+      path: "blockedProfiles",
+      match: matchCriteria,
+      select: "fullName gender photos"
+    });
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found"
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      data: user.blockedProfiles
+    });
+  })
 };
 
 module.exports = userController;
