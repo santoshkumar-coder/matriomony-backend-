@@ -190,4 +190,8 @@ exports.getBlockedRelations = async (req, res) => {
       error: error.message,
     });
   }
+
+
+  
 };
+

@@ -48,6 +48,8 @@ app.use("/api/v1/banners", require("./routes/bannerRoutes"));
 app.use("/api/v1/notifications", require("./routes/notificationRoutes"));
 app.use("/api/v1/spam", require("../src/routes/spamRoutes"));
 
+app.use("/api/v1/users", require("./routes/recentlyJoinedRoute"));
+
 app.use("/api/v1/saved-searches", require("./routes/savedSearchRoutes"));
 app.use("/api/v1/tickets", ticketRoutes);
 

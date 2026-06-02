@@ -1,52 +1,111 @@
-const successStoryService = require("../services/successStoryService");
+const SuccessStory = require("../models/successStoryModel");
 const asyncHandler = require("../utils/asyncHandler");
-const cleanBody = require("../utils/cleanBody");
 
+const createSuccessStory = asyncHandler(async (req, res) => {
+  const { title, coupleName, description, weddingDate, yearsTogether } = req.body;
 
-exports.createStory = asyncHandler(async (req, res) => {
-  const data = cleanBody(req.body);
-  const story = await successStoryService.create(data);
+  if (!title || !coupleName || !description || !weddingDate || !yearsTogether) {
+    return res.status(400).json({
+      success: false,
+      message: "All fields are required",
+    });
+  }
+
+  if (!req.files || req.files.length === 0) {
+    return res.status(400).json({
+      success: false,
+      message: "At least one image is required",
+    });
+  }
+
+  const imagePaths = req.files.map((file) => `/uploads/${file.filename}`);
+
+  const successStory = await SuccessStory.create({
+    title,
+    coupleName,
+    description,
+    weddingDate,
+    yearsTogether,
+    images: imagePaths,
+  });
+
   res.status(201).json({
     success: true,
     message: "Success story created successfully",
-    data: story,
+    data: successStory,
   });
 });
 
+const getAllSuccessStories = asyncHandler(async (req, res) => {
+  const stories = await SuccessStory.find().sort({ createdAt: -1 });
 
-exports.getAllStories = asyncHandler(async (req, res) => {
-  const stories = await successStoryService.getAll();
   res.status(200).json({
     success: true,
-    count: stories.length,
     data: stories,
   });
 });
 
+const getSuccessStoryById = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+  const story = await SuccessStory.findById(id);
 
-exports.getStoryById = asyncHandler(async (req, res) => {
-  const story = await successStoryService.getById(req.params.id);
+  if (!story) {
+    return res.status(404).json({
+      success: false,
+      message: "Success story not found",
+    });
+  }
+
   res.status(200).json({
     success: true,
     data: story,
   });
 });
 
+const deleteSuccessStory = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+  const story = await SuccessStory.findByIdAndDelete(id);
 
-exports.updateStory = asyncHandler(async (req, res) => {
-  const data = cleanBody(req.body);
-  const story = await successStoryService.update(req.params.id, data);
+  if (!story) {
+    return res.status(404).json({
+      success: false,
+      message: "Success story not found",
+    });
+  }
+
   res.status(200).json({
     success: true,
-    data: story,
+    message: "Success story deleted successfully",
   });
 });
 
+const toggleHideSuccessStory = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+  const story = await SuccessStory.findById(id);
 
-exports.deleteStory = asyncHandler(async (req, res) => {
-  await successStoryService.delete(req.params.id);
+  if (!story) {
+    return res.status(404).json({
+      success: false,
+      message: "Success story not found",
+    });
+  }
+
+  story.isHidden = !story.isHidden;
+  await story.save();
+
   res.status(200).json({
     success: true,
-    message: "Success story removed successfully",
+    message: `Success story ${story.isHidden ? "hidden" : "unhidden"} successfully`,
+    data: {
+      isHidden: story.isHidden,
+    },
   });
 });
+
+module.exports = {
+  createSuccessStory,
+  getAllSuccessStories,
+  getSuccessStoryById,
+  deleteSuccessStory,
+  toggleHideSuccessStory,
+};

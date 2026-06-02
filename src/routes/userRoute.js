@@ -51,4 +51,6 @@ router.post('/sessions/terminate/:id', authMiddleware, userController.terminateS
 router.get('/admin/search-users', authMiddleware, verifyAdmin, userController.searchUsersAdmin);
 router.get('/blocked-users/search/:id', authMiddleware, userController.searchBlockedUsers);
 
+router.get('/admin/deactivated-users', authMiddleware, verifyAdmin, userController.getDeactivatedUsersAdmin);
+
 module.exports = router;

@@ -524,6 +524,32 @@ const userController = {
       success: true,
       data: user.blockedProfiles
     });
+  }),
+
+  getDeactivatedUsersAdmin: asyncHandler(async (req, res) => {
+    const { page = 1, limit = 10 } = req.query;
+    const pageNumber = parseInt(page, 10) || 1;
+    const limitNumber = parseInt(limit, 10) || 10;
+    const skip = (pageNumber - 1) * limitNumber;
+
+    const query = { isActive: false };
+
+    const totalItems = await User.countDocuments(query);
+    const users = await User.find(query)
+      .select("fullName email gender photos isActive deactivatedUntil moderationStatus")
+      .skip(skip)
+      .limit(limitNumber);
+
+    res.status(200).json({
+      success: true,
+      pagination: {
+        totalItems,
+        totalPages: Math.ceil(totalItems / limitNumber),
+        currentPage: pageNumber,
+        limit: limitNumber
+      },
+      data: users
+    });
   })
 };
 
