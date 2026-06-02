@@ -145,24 +145,37 @@ const userController = {
         message: "User not found",
       });
     }
-    console.log('user id:', userId);
-    console.log('type:', typeof userId); // should log "string"
-    const profileMatch = (await Match.find()) // get one match to inspect
-    console.log('sample match userId:', profileMatch);
-    console.log('sample match userId:', profileMatch?.userId);
 
+    const userMatches = await Match.find({ userId });
 
-    // ✅ query with ObjectId
-    const userMatches = await Match.find({
-      userId: new mongoose.Types.ObjectId(userId)
+    const candidateIds = userMatches.map(match => match.candidateId);
+
+    const candidates = await User.find({
+      _id: { $in: candidateIds }
     });
+
+    const candidateMap = candidates.reduce((acc, user) => {
+      acc[user._id.toString()] = user;
+      return acc;
+    }, {});
+
+    const matchesWithUsers = userMatches.map(match => ({
+      ...match.toObject(),
+      candidateData: candidateMap[match.candidateId]
+    }));
+
+    //  const userMatches = await Match.find({
+    //     userId: userId 
+    //   });
+
 
     res.status(200).json({
       success: true,
       message: "User matches retrieved successfully",
-      count: userMatches.length,
-      data: userMatches,
+      count: matchesWithUsers.length,
+      data: matchesWithUsers,
     });
+
   }),
 
 
@@ -203,7 +216,7 @@ const userController = {
 
   updateUser: asyncHandler(async (req, res) => {
     req.body = cleanBody(req.body);
-    
+
 
     if (req.files && req.files.length > 0) {
       req.body.photos = req.files.map((file, index) => ({

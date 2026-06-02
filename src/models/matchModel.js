@@ -4,14 +4,8 @@ const mongoose = require('mongoose');
 
 const matchSchema = new mongoose.Schema(
   {
-    userId: { 
-        type: mongoose.Schema.Types.ObjectId, // ✅ back to ObjectId
-        ref: 'User' 
-      },
-      candidateId: { 
-        type: mongoose.Schema.Types.ObjectId, // ✅ back to ObjectId
-        ref: 'User' 
-      },
+    userId: { type: String, required: true },
+    candidateId: { type: String, required: true },
     score: {
       type: Number,
     },

@@ -10,7 +10,7 @@ require("dotenv").config();
 const { connectProducer } = require("./src/kafka/producer");
 const { connectConsumer } = require("./src/kafka/consumer");
 const axios = require('axios');
-// .
+//  .
 
 const server = http.createServer(app);
 const dns = require("node:dns/promises");
