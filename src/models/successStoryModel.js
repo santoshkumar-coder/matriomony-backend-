@@ -2,34 +2,40 @@ const mongoose = require("mongoose");
 
 const successStorySchema = new mongoose.Schema(
   {
-    partner1: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
-      required: true,
-    },
-    partner2: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
-      required: true,
-    },
-    story: {
+    title: {
       type: String,
       required: true,
     },
-    marriageYear: {
+    coupleName: {
+      type: String,
+      required: true,
+    },
+    description: {
+      type: String,
+      required: true,
+    },
+    weddingDate: {
+      type: Date,
+      required: true,
+    },
+    yearsTogether: {
       type: Number,
       required: true,
     },
-    imageUrl: {
-      type: String, 
-      required: true,
-    },
-    isActive: {
+    images: [
+      {
+        type: String,
+        required: true,
+      }
+    ],
+    isHidden: {
       type: Boolean,
-      default: true,
+      default: false,
     },
   },
-  { timestamps: true }
+  {
+    timestamps: true,
+  }
 );
 
 module.exports = mongoose.model("SuccessStory", successStorySchema);

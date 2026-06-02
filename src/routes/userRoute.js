@@ -1,6 +1,5 @@
 const router = require('express').Router();
 const userController = require('../controllers/userController');
-const adminController = require('../controllers/adminController');
 const validate = require('../middlewares/validate');
 const { createUserSchema } = require('../validators/user.validator');
 const upload = require('../config/multer');
@@ -50,5 +49,10 @@ router.delete('/delete/:id', authMiddleware, verifyAdmin, userController.deleteA
 
 router.get('/sessions/:id', authMiddleware, userController.getActiveSessions);
 router.post('/sessions/terminate/:id', authMiddleware, userController.terminateSession);
+
+router.get('/admin/search-users', authMiddleware, verifyAdmin, userController.searchUsersAdmin);
+router.get('/blocked-users/search/:id', authMiddleware, userController.searchBlockedUsers);
+
+router.get('/admin/deactivated-users', authMiddleware, verifyAdmin, userController.getDeactivatedUsersAdmin);
 
 module.exports = router;
