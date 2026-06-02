@@ -12,7 +12,10 @@ const userSchema = new mongoose.Schema(
       default: "India",
     },
     state: String,
-    city: String,
+    city:  {
+      type: String,
+      default: "Dehradun",
+    },
     citizenship: {
       type: String,
       default: "Indian",

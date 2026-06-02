@@ -236,6 +236,18 @@ const preOnboardingOptionsServie = async () => {
 
   }
 }
+
+
+const recentUsersService = async (page = 1, limit = 5) => {
+  const skip = (page - 1) * limit;
+
+  return await User.find()
+    .sort({ createdAt: -1 })
+    .select('fullName photos city dob  createdAt city')
+    .skip(skip)
+    .limit(limit);
+};
+
 module.exports = {
   createUserService,
   getAllUsersService,
@@ -246,5 +258,6 @@ module.exports = {
   getAllUsersServiceForAdmin,
   fetchFilteredUsersService,
   getModerationStatusService,
-  preOnboardingOptionsServie
+  preOnboardingOptionsServie,
+  recentUsersService
 };

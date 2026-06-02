@@ -9,6 +9,7 @@ const {
   fetchFilteredUsersService,
   preOnboardingOptionsServie,
   loginUserService,
+  recentUsersService
 } = require("../services/userService");
 
 const cleanBody = require("../utils/cleanBody");
@@ -564,6 +565,19 @@ const userController = {
       message: "Session terminated successfully",
     });
   }),
-};
+
+  getRecentJoiners: asyncHandler(async (req, res) => {
+    const page = parseInt(req.query.page) || 1;
+  
+    const recentUsers = await recentUsersService(page);
+  
+    res.status(200).json({
+      success: true,
+      page,
+      count: recentUsers.length,
+      data: recentUsers,
+    });
+  })
+}
 
 module.exports = userController;
