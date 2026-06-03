@@ -208,6 +208,7 @@ const userSchema = new mongoose.Schema(
       enum: ["FREE", "GOLD", "PREMIUM", "ELITE"],
       default: "FREE",
     },
+    spamReports: [{ type: mongoose.Schema.Types.ObjectId, ref: "User", default: [] }],
     isReported: {
       type: Boolean,
       default: false,
