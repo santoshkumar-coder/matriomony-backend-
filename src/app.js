@@ -53,6 +53,8 @@ app.use("/api/v1/users", require("./routes/recentlyJoinedRoute"));
 app.use("/api/v1/saved-searches", require("./routes/savedSearchRoutes"));
 app.use("/api/v1/tickets", ticketRoutes);
 
+app.use("/api/v1/stats", require("./routes/userStatsRoutes"));
+
 app.use(globalErrorHandler);
 
 module.exports = app;
