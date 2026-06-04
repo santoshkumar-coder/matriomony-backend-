@@ -21,12 +21,18 @@ const userNotificationSchema = new mongoose.Schema({
     type: Boolean,
     default: false,
   },
+  profileImage :{
+
+    type:[String],
+    default:'https://www.svgrepo.com/show/335455/profile-default.svg'
+  },
 
   type: {
     type: String,
-    enum: ["profile_accepted", "profile_rejected", "default"],
+    enum: ["profile_accepted", "profile_rejected", "default", 'receive_interest'],
     default: "default",
   },
+
 },
   {
     timestamps: true, // replaces createdAt automatically

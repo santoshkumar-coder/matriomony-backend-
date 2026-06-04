@@ -28,10 +28,12 @@ router.post('/create', upload.array('photos', 5), parseJsonFields, validate(crea
 router.post('/login', userController.loginUser);
 router.get('/pre-boarding-options', userController.getPreBoardingOptions);
 router.get('/user-matches', authMiddleware, userController.getUserMatches);
+router.get('/notification',authMiddleware, userController.getNotification )
 
 router.get('/get-all-users', authMiddleware, userController.getAllUsers);
 router.get('/get-user', authMiddleware, userController.getUserById);
 router.get('/filtered-users', authMiddleware, userController.getFilteredUsers);
+
 router.get('/getModerateStatus/:id', authMiddleware, userController.getMyModerationStatus);
 router.put('/update-user', authMiddleware, upload.array('photos', 5), parseJsonFields, userController.updateUser);
 router.get('/get-recent-joiners', authMiddleware, userController.getRecentJoiners);

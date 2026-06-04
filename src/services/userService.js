@@ -5,6 +5,7 @@ const AppError = require("../utils/AppError");
 const { publishMessage } = require('../kafka/producer');
 const { sendEvent } = require('../config/kafka');
 const TOPICS = require('../kafka/topics');
+const userNotification = require('../models/userNotification')
 
 const createUserService = async (data) => {
   const existingUser = await User.findOne({
@@ -209,7 +210,7 @@ const fetchFilteredUsersService = async (queryParams) => {
         hasNextPage: parseInt(page) < Math.ceil(totalUsers / parseInt(limit)),
         hasPrevPage: parseInt(page) > 1,
         totalUsers,
-      
+
       },
     };
   }
@@ -224,7 +225,7 @@ const fetchFilteredUsersService = async (queryParams) => {
       hasNextPage: null,
       hasPrevPage: null,
       totalUsers,
-     
+
     },
   };
 };
@@ -283,6 +284,34 @@ const recentUsersService = async (page = 1, limit = 5) => {
     .limit(limit);
 };
 
+
+const userNotificationService = async (userId, page = 1, limit = 5) => {
+
+  const skip = (page - 1) * limit;
+
+  // Fetch notifications with pagination
+  const notifications = await userNotification
+    .find({ userId })
+    .sort({ createdAt: -1 }) // optional: newest first
+    .skip(skip)
+    .limit(limit);
+
+  // Optional: total count for frontend pagination
+  const total = await userNotification.countDocuments({ userId });
+
+  return {
+    pagination: {
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
+      totalNotifications: total,
+      notifications,
+      
+    }
+
+  };
+};
+
 module.exports = {
   createUserService,
   getAllUsersService,
@@ -294,5 +323,6 @@ module.exports = {
   fetchFilteredUsersService,
   getModerationStatusService,
   preOnboardingOptionsServie,
-  recentUsersService
+  recentUsersService,
+  userNotificationService
 };

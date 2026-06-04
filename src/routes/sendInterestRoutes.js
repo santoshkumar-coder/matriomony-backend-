@@ -12,7 +12,7 @@ const {
 } = require("../controllers/interestController");
 
 router.post("/send-interest/:receiverId", authMiddleware, sendInterest);
-router.put("/accept-interest/:senderId", authMiddleware, acceptInterest);
+router.put("/accept-interest/:interestId", authMiddleware, acceptInterest);
 // router.put("/decline-interest/:senderId", authMiddleware, declineInterest);
 router.get("/sent-interests", authMiddleware, getSentInterests);
 // router.get("/accepted-interests", authMiddleware, getAcceptedInterests);

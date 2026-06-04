@@ -1,5 +1,6 @@
 const asyncHandler = require("../utils/asyncHandler");
 const mongoose = require("mongoose");
+
 const {
   createUserService,
   getAllUsersService,
@@ -9,7 +10,8 @@ const {
   fetchFilteredUsersService,
   preOnboardingOptionsServie,
   loginUserService,
-  recentUsersService
+  recentUsersService,
+  userNotificationService
 } = require("../services/userService");
 
 const cleanBody = require("../utils/cleanBody");
@@ -664,6 +666,16 @@ const userController = {
       page,
       count: recentUsers.length,
       data: recentUsers,
+    });
+  }),
+
+  getNotification: asyncHandler( async (req, res) => {
+    const userId = req.user.id;
+    const notification = await userNotificationService(userId);
+    res.status(200).json({
+      success: true,
+      message:"received all notification",
+      data: notification,
     });
   })
 }

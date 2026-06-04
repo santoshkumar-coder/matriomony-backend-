@@ -1,4 +1,6 @@
 const Interest = require("../models/interestModel");
+const User = require('../models/userModel');
+const UserNotification = require('../models/userNotification')
 
 const sendInterestService = async (fromUserId, toUserId) => {
   if (fromUserId === toUserId) {
@@ -11,14 +13,37 @@ const sendInterestService = async (fromUserId, toUserId) => {
   });
 
   if (existing) {
-    throw new Error("Interest already exists");
+    throw new Error("Interest already sent already");
   }
 
-  return await Interest.create({
+  const interest = await Interest.create({
     fromUser: fromUserId,
     toUser: toUserId,
     status: "pending",
   });
+
+  // Fire and forget — runs in background, doesn't block the response
+  (async () => {
+    try {
+      const profile = await User.findById(fromUserId).select("fullName photos");
+
+      await UserNotification.create({
+        userId: toUserId, // notify the RECEIVER, not the sender
+        title: "New Interest Received",
+        message: `${profile?.fullName} sent you an interest request.`,
+        type: "receive_interest",
+        // profileImage: profile?.photos,
+        profileImage:
+          profile?.photos && profile.photos.length > 0
+            ? profile.photos
+            : 'https://www.svgrepo.com/show/335455/profile-default.svg'
+      });
+    } catch (err) {
+      console.error("Background notification error:", err.message);
+    }
+  })();
+
+  return interest;
 };
 
 const getReceivedInterestsService = async (userId) => {
@@ -29,15 +54,18 @@ const getReceivedInterestsService = async (userId) => {
 };
 
 const getSentInterestsService = async (userId) => {
-  return await Interest.find({
+  const interest = await Interest.find({
     fromUser: userId,
   }).populate("toUser", "fullName photos profession");
+  const notification = aw
+
 };
 
 const acceptInterestService = async (interestId, userId) => {
   const interest = await Interest.findById(interestId);
 
   if (!interest) throw new Error("Interest not found");
+  console.log(interest.toUser.toString(), userId.toString())
 
   if (interest.toUser.toString() !== userId.toString()) {
     throw new Error("Not authorized");
@@ -45,6 +73,26 @@ const acceptInterestService = async (interestId, userId) => {
 
   interest.status = "accepted";
   await interest.save();
+
+  (async () => {
+    try {
+      const profile = await await User.findById(userId).select("fullName photos");
+
+      await UserNotification.create({
+        userId: interest?.fromUser, // notify the RECEIVER, not the sender
+        title: "Interest Request Accepted",
+        message: `${profile?.fullName} has accepted your interest request.`,
+        type: "profile_accepted",
+        profileImage:
+          profile?.photos && profile.photos.length > 0
+            ? profile.photos
+            : 'https://www.svgrepo.com/show/335455/profile-default.svg'
+      });
+    } catch (err) {
+      console.error("Background notification error:", err.message);
+    }
+  })();
+
 
   return interest;
 };
