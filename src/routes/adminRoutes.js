@@ -11,5 +11,6 @@ router.get('/profiles', verifyAdmin, adminController.getProfiles);
 router.get('/pending-profiles', verifyAdmin, adminController.getPendingProfiles);
 router.put('/moderate/:userId', verifyAdmin, adminController.moderateProfile);
 router.get('/block-relations', verifyAdmin, adminController.getBlockedRelations);
+router.get("/user-matches/:userId", verifyAdmin, adminController.getUserMatchDetails);
 
 module.exports = router;

@@ -176,7 +176,7 @@ const loginUserService = async (data) => {
 };
 
 const fetchFilteredUsersService = async (queryParams) => {
-  const { gender, religion, maritalStatus, city, country } = queryParams;
+  const { gender, religion, maritalStatus, city, country, page = 1, limit = 10 } = queryParams;
 
   let query = {
     isActive: true,
@@ -189,10 +189,45 @@ const fetchFilteredUsersService = async (queryParams) => {
   if (city) query.city = city;
   if (country) query.country = country;
 
-  const users = await User.find(query).sort({ createdAt: -1 });
-  return users;
-};
+  const totalUsers = await User.countDocuments(query);
 
+  // Only paginate if total users exceed 10
+  if (totalUsers > 10) {
+    const skip = (parseInt(page) - 1) * parseInt(limit);
+
+    const users = await User.find(query)
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(parseInt(limit));
+
+    return {
+      users,
+      pagination: {
+        totalPages: Math.ceil(totalUsers / parseInt(limit)),
+        currentPage: parseInt(page),
+        limit: parseInt(limit),
+        hasNextPage: parseInt(page) < Math.ceil(totalUsers / parseInt(limit)),
+        hasPrevPage: parseInt(page) > 1,
+        totalUsers,
+      
+      },
+    };
+  }
+
+  // Return all users without pagination if 10 or fewer
+  const users = await User.find(query).sort({ createdAt: -1 });
+  return {
+    users, pagination: {
+      totalPages: Math.ceil(totalUsers / parseInt(limit)),
+      currentPage: parseInt(page),
+      limit: null,
+      hasNextPage: null,
+      hasPrevPage: null,
+      totalUsers,
+     
+    },
+  };
+};
 
 const preOnboardingOptionsServie = async () => {
   const accountCreatefor = [

@@ -1,25 +1,23 @@
 const express = require("express");
-
-const {
-  sendInterest,
-  getReceivedInterests,
-  getSentInterests,
-  acceptInterest,
-  rejectInterest,
-} = require("../controllers/interestController.js");
-
-const {authMiddleware} = require("../middlewares/authMiddleware.js");
-
 const router = express.Router();
+const { authMiddleware,verifyAdmin  } = require("../middlewares/authMiddleware");
+const {
+    sendInterest,
+    acceptInterest,
+    declineInterest,
+    getSentInterests,
+    getAcceptedInterests,
+    getReceivedInterests,
+    getUserInterestsForAdmin
+} = require("../controllers/interestController");
 
-router.post("/send", authMiddleware, sendInterest);
+router.post("/send-interest/:receiverId", authMiddleware, sendInterest);
+router.put("/accept-interest/:senderId", authMiddleware, acceptInterest);
+// router.put("/decline-interest/:senderId", authMiddleware, declineInterest);
+router.get("/sent-interests", authMiddleware, getSentInterests);
+// router.get("/accepted-interests", authMiddleware, getAcceptedInterests);
+router.get("/received-interests", authMiddleware, getReceivedInterests);
 
-router.get("/received", authMiddleware, getReceivedInterests);
-
-router.get("/sent", authMiddleware, getSentInterests);
-
-router.put("/accept/:interestId", authMiddleware, acceptInterest);
-
-router.put("/reject/:interestId", authMiddleware, rejectInterest);
+router.get("/admin/user-interests/:userId", verifyAdmin, getUserInterestsForAdmin);
 
 module.exports = router;

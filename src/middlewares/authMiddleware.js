@@ -1,15 +1,12 @@
 const jwt = require("jsonwebtoken");
-const Admin = require("../models/Admin")
-
+const Admin = require("../models/Admin");
 
 const authMiddleware = async (req, res, next) => {
   try {
     let token = null;
     if (req.cookies?.token) {
       token = req.cookies.token;
-    }
-
-    else if (
+    } else if (
       req.headers.authorization &&
       req.headers.authorization.startsWith("Bearer ")
     ) {
@@ -22,10 +19,7 @@ const authMiddleware = async (req, res, next) => {
         message: "Unauthorized. Token missing",
       });
     }
-    const decoded = jwt.verify(
-      token,
-      process.env.JWT_SECRET
-    );
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
     req.user = decoded;
     next();
   } catch (error) {
@@ -36,8 +30,6 @@ const authMiddleware = async (req, res, next) => {
     });
   }
 };
-
-
 
 const verifyAdmin = async (req, res, next) => {
   try {
@@ -51,7 +43,6 @@ const verifyAdmin = async (req, res, next) => {
     }
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    
     const admin = await Admin.findById(decoded.id);
 
     if (!admin || !admin.isActive) {
@@ -63,7 +54,7 @@ const verifyAdmin = async (req, res, next) => {
       return res.status(403).json({ message: "Forbidden: You don't have permission" });
     }
 
-    req.admin = admin; 
+    req.admin = admin;
     next();
   } catch (error) {
     console.log("Auth Error:", error.message);
@@ -71,4 +62,4 @@ const verifyAdmin = async (req, res, next) => {
   }
 };
 
-module.exports = { verifyAdmin , authMiddleware};
+module.exports = { verifyAdmin, authMiddleware };
