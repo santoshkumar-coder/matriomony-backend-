@@ -28,7 +28,7 @@ router.post('/create', upload.array('photos', 5), parseJsonFields, validate(crea
 router.post('/login', userController.loginUser);
 router.get('/pre-boarding-options', userController.getPreBoardingOptions);
 router.get('/user-matches', authMiddleware, userController.getUserMatches);
-router.get('/notification',authMiddleware, userController.getNotification )
+router.get('/notification', authMiddleware, userController.getNotification)
 
 router.get('/get-all-users', authMiddleware, userController.getAllUsers);
 router.get('/get-user', authMiddleware, userController.getUserById);

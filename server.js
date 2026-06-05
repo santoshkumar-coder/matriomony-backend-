@@ -14,7 +14,6 @@ const axios = require('axios');
 
 const server = http.createServer(app);
 const dns = require("node:dns/promises");
-const express = require('express');
 dns.setServers(["8.8.8.8", "1.1.1.1"]);
 
 
