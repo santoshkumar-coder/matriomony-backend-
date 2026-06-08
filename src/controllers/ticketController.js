@@ -117,6 +117,48 @@ const ticketController = {
       data: tickets,
     });
   }),
+
+getTicketStats: asyncHandler(async (req, res) => {
+  const { filter } = req.query;
+  let format = "%Y-%m-%d";
+
+  if (filter === "monthly") format = "%Y-%m";
+  if (filter === "yearly") format = "%Y";
+
+  const stats = await Ticket.aggregate([
+    {
+      $group: {
+        _id: { $dateToString: { format: format, date: "$createdAt" } },
+        totalTickets: { $sum: 1 },
+        resolvedTickets: {
+          $sum: { $cond: [{ $eq: ["$status", "Resolved"] }, 1, 0] },
+        },
+        pendingTickets: {
+          $sum: { $cond: [{ $eq: ["$status", "Pending"] }, 1, 0] },
+        },
+      },
+    },
+    { $sort: { _id: 1 } },
+    {
+      $project: {
+        _id: 0,
+        date: "$_id",
+        totalTickets: 1,
+        resolvedTickets: 1,
+        pendingTickets: 1,
+      },
+    },
+  ]);
+
+  res.status(200).json({
+    success: true,
+    data: stats,
+  });
+}),
+
 };
+
+
+
 
 module.exports = ticketController;

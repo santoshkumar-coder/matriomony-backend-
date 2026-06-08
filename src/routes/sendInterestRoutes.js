@@ -8,7 +8,8 @@ const {
     getSentInterests,
     getAcceptedInterests,
     getReceivedInterests,
-    getUserInterestsForAdmin
+    getUserInterestsForAdmin,
+    getReceivedInterestsForAdmin
 } = require("../controllers/interestController");
 
 router.post("/send-interest/:receiverId", authMiddleware, sendInterest);
@@ -19,5 +20,6 @@ router.get("/accepted-interests", authMiddleware, getAcceptedInterests);
 router.get("/received-interests", authMiddleware, getReceivedInterests);
 
 router.get("/admin/user-interests/:userId", verifyAdmin, getUserInterestsForAdmin);
+router.get("/admin/received-interests/:userId", verifyAdmin, getReceivedInterestsForAdmin);
 
 module.exports = router;

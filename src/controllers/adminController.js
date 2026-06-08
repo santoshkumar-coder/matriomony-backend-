@@ -1,17 +1,31 @@
-const adminService = require("../services/adminService");
+const Admin = require("../models/Admin");
+const User = require("../models/userModel");
+const jwt = require("jsonwebtoken");
+const bcrypt = require("bcryptjs");
 const {
   getUserDashboardStatistics,
   getAllUsersServiceForAdmin,
 } = require("../services/userService");
-const User = require("../models/userModel");
 
+const cookieOptions = {
+  httpOnly: true,
+  secure: true,      // HTTPS (Ngrok) ke liye hamesha true
+  sameSite: "none",  // Cross-domain (localhost to ngrok) ke liye zaruri hai
+};
 exports.register = async (req, res) => {
   try {
-    const admin = await adminService.registerAdmin(req.body);
+    const { email, password, fullName, role } = req.body;
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const admin = await Admin.create({
+      email,
+      password: hashedPassword,
+      fullName,
+      role,
+    });
     res.status(201).json({
       success: true,
       message: "Admin registered successfully",
-      data: admin,
+      data: { id: admin._id, email: admin.email },
     });
   } catch (error) {
     res.status(400).json({ success: false, message: error.message });
@@ -22,33 +36,61 @@ exports.login = async (req, res) => {
   try {
     const { email, password } = req.body;
     if (!email || !password) {
-      return res.status(400).json({ message: "Email and password are required" });
+      return res.status(400).json({ success: false, message: "Email and password are required" });
     }
-    const result = await adminService.loginAdmin(email, password);
+    const admin = await Admin.findOne({ email }).select("+password");
+    if (!admin) return res.status(401).json({ success: false, message: "Invalid credentials" });
+
+    const isMatch = await bcrypt.compare(password, admin.password || "");
+    if (!isMatch) return res.status(401).json({ success: false, message: "Invalid credentials" });
+
+    const accessToken = jwt.sign({ id: admin._id, role: admin.role }, process.env.JWT_SECRET, { expiresIn: "1d" });
+    const refreshToken = jwt.sign({ id: admin._id }, process.env.REFRESH_TOKEN_SECRET, { expiresIn: "7d" });
+
+    res.cookie("token", accessToken, { ...cookieOptions, maxAge: 24 * 60 * 60 * 1000 });
+    res.cookie("refreshToken", refreshToken, { ...cookieOptions, maxAge: 7 * 24 * 60 * 60 * 1000 });
+
     res.status(200).json({
       success: true,
       message: "Login successful",
-      ...result,
+      admin: { id: admin._id, email: admin.email, role: admin.role },
     });
   } catch (error) {
-    res.status(401).json({ success: false, message: error.message });
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+exports.refreshToken = async (req, res) => {
+  try {
+    const rToken = req.cookies.refreshToken;
+    if (!rToken) return res.status(401).json({ success: false, message: "Session expired" });
+    jwt.verify(rToken, process.env.REFRESH_TOKEN_SECRET, (err, decoded) => {
+      if (err) return res.status(403).json({ success: false, message: "Invalid refresh token" });
+      const newAccessToken = jwt.sign({ id: decoded.id }, process.env.JWT_SECRET, { expiresIn: "1d" });
+      res.cookie("token", newAccessToken, { ...cookieOptions, maxAge: 24 * 60 * 60 * 1000 });
+      res.status(200).json({ success: true, message: "Token refreshed" });
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+exports.logout = async (req, res) => {
+  try {
+    res.clearCookie("token", cookieOptions);
+    res.clearCookie("refreshToken", cookieOptions);
+    res.status(200).json({ success: true, message: "Logged out successfully" });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
   }
 };
 
 exports.getStats = async (req, res) => {
   try {
     const stats = await getUserDashboardStatistics();
-    return res.status(200).json({
-      success: true,
-      message: "Admin statistics retrieved successfully",
-      data: stats,
-    });
+    res.status(200).json({ success: true, data: stats });
   } catch (error) {
-    return res.status(500).json({
-      success: false,
-      message: "Internal Server Error",
-      error: error.message,
-    });
+    res.status(500).json({ success: false, error: error.message });
   }
 };
 
@@ -57,37 +99,21 @@ exports.getAllUsersForAdmin = async (req, res) => {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
     const result = await getAllUsersServiceForAdmin(page, limit);
-    return res.status(200).json({
-      success: true,
-      message: "Users fetched successfully",
-      totalUsers: result.totalUsersCount,
-      showingCount: result.users.length,
-      data: result.users,
-      pagination: result.pagination,
-    });
+    res.status(200).json({ success: true, data: result.users, pagination: result.pagination });
   } catch (error) {
-    return res.status(500).json({
-      success: false,
-      message: "Error fetching users",
-      error: error.message,
-    });
+    res.status(500).json({ success: false, error: error.message });
   }
 };
 
 exports.getProfiles = async (req, res) => {
   try {
-    const result = await adminService.fetchAllUsers(req.query);
-    res.status(200).json({
-      success: true,
-      message: "Profiles fetched successfully",
-      ...result,
-    });
+    const { page = 1, limit = 10, search = "" } = req.query;
+    const query = search ? { fullName: { $regex: search, $options: "i" } } : {};
+    const users = await User.find(query).limit(limit * 1).skip((page - 1) * limit);
+    const count = await User.countDocuments(query);
+    res.status(200).json({ success: true, data: users, totalPages: Math.ceil(count / limit) });
   } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: "Error fetching profiles",
-      error: error.message,
-    });
+    res.status(500).json({ success: false, error: error.message });
   }
 };
 
@@ -96,111 +122,39 @@ exports.getPendingProfiles = async (req, res) => {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
     const skip = (page - 1) * limit;
-    const pendingUsers = await User.find({ moderationStatus: "Pending" })
-      .sort({ createdAt: -1 })
-      .skip(skip)
-      .limit(limit)
-      .select("fullName email phone gender photos createdAt");
+    const pendingUsers = await User.find({ moderationStatus: "Pending" }).sort({ createdAt: -1 }).skip(skip).limit(limit);
     const total = await User.countDocuments({ moderationStatus: "Pending" });
-    return res.status(200).json({
-      success: true,
-      message: "Pending profiles retrieved successfully",
-      total,
-      data: pendingUsers,
-      pagination: {
-        currentPage: page,
-        totalPages: Math.ceil(total / limit),
-        limit,
-      },
-    });
+    res.status(200).json({ success: true, data: pendingUsers, totalPages: Math.ceil(total / limit) });
   } catch (error) {
-    return res.status(500).json({
-      success: false,
-      message: "Error fetching pending profiles",
-      error: error.message,
-    });
+    res.status(500).json({ success: false, error: error.message });
   }
 };
 
 exports.moderateProfile = async (req, res) => {
   try {
-    const { userId } = req.params;
-    const { status } = req.body;
-    if (!["Approved", "Rejected", "Pending"].includes(status)) {
-      return res.status(400).json({
-        success: false,
-        message: "Invalid status. Use Approved, Rejected or Pending.",
-      });
-    }
-    const updatedUser = await adminService.updateModerationStatus(userId, status);
-    if (!updatedUser) {
-      return res.status(404).json({ success: false, message: "User not found" });
-    }
-    res.status(200).json({
-      success: true,
-      message: `Profile status updated to ${status}`,
-      data: updatedUser,
-    });
+    const updatedUser = await User.findByIdAndUpdate(req.params.userId, { moderationStatus: req.body.status }, { new: true });
+    if (!updatedUser) return res.status(404).json({ success: false, message: "User not found" });
+    res.status(200).json({ success: true, data: updatedUser });
   } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: "Error updating profile status",
-      error: error.message,
-    });
+    res.status(500).json({ success: false, error: error.message });
   }
 };
 
 exports.getBlockedRelations = async (req, res) => {
   try {
-    const userwithBlocks = await User.find({
-      blockedProfiles: { $exists: true, $not: { $size: 0 } },
-    })
-      .select("fullName gender photos blockedProfiles")
-      .populate("blockedProfiles", "fullName gender photos");
-    return res.status(200).json({
-      success: true,
-      message: "Blocked relations retrieved successfully",
-      data: userwithBlocks,
-    });
+    const data = await User.find({ blockedProfiles: { $exists: true, $not: { $size: 0 } } }).populate("blockedProfiles", "fullName gender photos");
+    res.status(200).json({ success: true, data });
   } catch (error) {
-    return res.status(500).json({
-      success: false,
-      message: "Error retrieving blocked relations",
-      error: error.message,
-    });
+    res.status(500).json({ success: false, error: error.message });
   }
 };
 
 exports.getUserMatchDetails = async (req, res) => {
   try {
-    const { userId } = req.params;
-    const user = await User.findById(userId)
-      .select("fullName phone email matches")
-      .populate({
-        path: "matches",
-        select: "fullName phone email gender country state city photos religion motherTongue maritalStatus profileCompletionPercentage",
-      });
-
-    if (!user) {
-      return res.status(404).json({ success: false, message: "User not found" });
-    }
-
-    res.status(200).json({
-      success: true,
-      totalMatches: user.matches ? user.matches.length : 0,
-      targetUser: {
-        id: user._id,
-        fullName: user.fullName,
-        phone: user.phone,
-        email: user.email,
-      },
-      matches: user.matches || [],
-    });
+    const user = await User.findById(req.params.userId).populate("matches");
+    if (!user) return res.status(404).json({ success: false, message: "User not found" });
+    res.status(200).json({ success: true, matches: user.matches });
   } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: "Internal Server Error",
-      error: error.message,
-    });
+    res.status(500).json({ success: false, error: error.message });
   }
 };

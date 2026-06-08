@@ -298,6 +298,35 @@ const getUserInterestsForAdmin = async (req, res) => {
     }
 };
 
+
+const getReceivedInterestsForAdmin = async (req, res) => {
+    try {
+        if (!req.admin) {
+            return res.status(403).json({ success: false, message: "Access denied" });
+        }
+
+        const { userId } = req.params;
+        const user = await User.findById(userId).populate(
+            "interestsReceived",
+            "fullName photos gender dob city country religion motherTongue profession"
+        );
+
+        if (!user) {
+            return res.status(404).json({ success: false, message: "User not found" });
+        }
+
+        return res.status(200).json({
+            success: true,
+            totalReceived: user.interestsReceived.length,
+            interestsReceived: user.interestsReceived
+        });
+    } catch (error) {
+        return res.status(500).json({ success: false, message: "Server Error" });
+    }
+};
+
+
+
 module.exports = {
     sendInterest,
     acceptInterest,
@@ -305,5 +334,6 @@ module.exports = {
     getSentInterests,
     getAcceptedInterests,
     getReceivedInterests,
-    getUserInterestsForAdmin
+    getUserInterestsForAdmin,
+    getReceivedInterestsForAdmin
 };

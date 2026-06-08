@@ -14,4 +14,7 @@ router.get("/admin/search", verifyAdmin, ticketController.searchTickets);
 router.get("/admin/resolved", verifyAdmin, ticketController.getResolvedTickets);
 router.get("/admin/top-five", verifyAdmin, ticketController.getTopFiveTickets);
 
+router.get("/admin/stats", verifyAdmin, ticketController.getTicketStats);
+
+
 module.exports = router;

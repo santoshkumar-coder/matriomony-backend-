@@ -33,10 +33,7 @@ const authMiddleware = async (req, res, next) => {
 
 const verifyAdmin = async (req, res, next) => {
   try {
-    let token;
-    if (req.headers.authorization && req.headers.authorization.startsWith("Bearer")) {
-      token = req.headers.authorization.split(" ")[1];
-    }
+    const token = req.cookies?.token || (req.headers.authorization?.startsWith("Bearer") && req.headers.authorization.split(" ")[1]);
 
     if (!token) {
       return res.status(401).json({ message: "No token, authorization denied" });
@@ -51,15 +48,16 @@ const verifyAdmin = async (req, res, next) => {
 
     const allowedRoles = ["admin", "superadmin"];
     if (!allowedRoles.includes(admin.role)) {
-      return res.status(403).json({ message: "Forbidden: You don't have permission" });
+      return res.status(403).json({ message: "Forbidden: Access denied" });
     }
 
     req.admin = admin;
     next();
   } catch (error) {
-    console.log("Auth Error:", error.message);
     res.status(401).json({ message: "Token is not valid" });
   }
 };
+
+
 
 module.exports = { verifyAdmin, authMiddleware };

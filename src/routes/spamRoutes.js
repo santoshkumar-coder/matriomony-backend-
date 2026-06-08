@@ -12,4 +12,6 @@ router.get("/search", authMiddleware, verifyAdmin, spamCtrl.handleSearch);
 router.patch("/block/:id", authMiddleware, verifyAdmin, spamCtrl.toggleBlock);
 router.delete("/delete/:id", authMiddleware, verifyAdmin, spamCtrl.deleteUser);
 
+router.get("/chart-stats", authMiddleware, verifyAdmin, spamCtrl.getSpamStats);
+
 module.exports = router;

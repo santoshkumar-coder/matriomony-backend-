@@ -4,6 +4,8 @@ const { verifyAdmin } = require('../middlewares/authMiddleware');
 
 router.post('/register', adminController.register);
 router.post('/login', adminController.login);
+router.post('/logout', adminController.logout);
+router.post('/refresh-token', adminController.refreshToken);
 
 router.get('/stats', verifyAdmin, adminController.getStats);
 router.get('/all-users', verifyAdmin, adminController.getAllUsersForAdmin);

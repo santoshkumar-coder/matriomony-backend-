@@ -4,6 +4,7 @@ const path = require("path");
 const morgan = require("morgan");
 const globalErrorHandler = require("./middlewares/errorMiddleware");
 const ticketRoutes = require("../src/routes/ticketRoutes");
+const cookieParser = require('cookie-parser'); 
 
 const app = express();
 
@@ -13,6 +14,8 @@ const allowedOrigins = [
   "http://127.0.0.1:5173",
   "http://localhost:3000"
 ];
+
+
 
 app.use(
   cors({
@@ -29,6 +32,7 @@ app.use(
   })
 );
 
+app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(morgan("dev"));
